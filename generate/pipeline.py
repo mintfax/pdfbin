@@ -23,6 +23,7 @@ BUILDER_MODULES: list[str] = [
     "generate.builders.health",
     "generate.builders.access",
     "generate.builders.spec",
+    "generate.builders.features",
 ]
 
 

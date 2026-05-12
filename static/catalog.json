@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "site": "pdfbin.net",
   "license_default": "CC0-1.0",
-  "generated_at": "2026-05-12T17:42:30+00:00",
-  "fixture_count": 34,
+  "generated_at": "2026-05-12T17:56:15+00:00",
+  "fixture_count": 37,
   "facet_axes": {
     "health": [
       "valid",
@@ -65,6 +65,81 @@
     ]
   },
   "fixtures": [
+    {
+      "id": "acroform-empty",
+      "url": "https://pdfbin.net/acroform-empty.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 5500,
+      "sha256": "ad46305d2e1b24dd6afd3dc5dbd9b732a778ce56adaf125239ca7abeb463cc10",
+      "page_count": 1,
+      "description": "PDF with three empty AcroForm text fields (name, email, phone).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [
+          "acroform"
+        ]
+      },
+      "source_script": "generate/builders/features.py:acroform_empty"
+    },
+    {
+      "id": "acroform-fully-filled",
+      "url": "https://pdfbin.net/acroform-fully-filled.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 5600,
+      "sha256": "a3ac70e2c71a83fe1dfb1eaf5680e41d3c2c0d08bae3ae10aa17a4b98f1ef2a6",
+      "page_count": 1,
+      "description": "AcroForm with all three fields filled (name, email, phone).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [
+          "acroform"
+        ]
+      },
+      "source_script": "generate/builders/features.py:acroform_fully_filled"
+    },
+    {
+      "id": "acroform-partially-filled",
+      "url": "https://pdfbin.net/acroform-partially-filled.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 5523,
+      "sha256": "3670b821cfbe784d9e9749528fd2f4150a9ac3b29847ffafe90fdc479f811a44",
+      "page_count": 1,
+      "description": "AcroForm with the name field filled; email and phone left empty.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [
+          "acroform"
+        ]
+      },
+      "source_script": "generate/builders/features.py:acroform_partially_filled"
+    },
     {
       "id": "aes128-owner",
       "url": "https://pdfbin.net/aes128-owner.pdf",

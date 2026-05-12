@@ -15,6 +15,78 @@
     }
   ],
   "paths": {
+    "/acroform-empty.pdf": {
+      "get": {
+        "summary": "PDF with three empty AcroForm text fields (name, email, phone).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acroform-fully-filled.pdf": {
+      "get": {
+        "summary": "AcroForm with all three fields filled (name, email, phone).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/acroform-partially-filled.pdf": {
+      "get": {
+        "summary": "AcroForm with the name field filled; email and phone left empty.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/aes128-owner.pdf": {
       "get": {
         "summary": "AES-128 (revision 4) with owner password only.",
