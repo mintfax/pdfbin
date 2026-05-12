@@ -1,12 +1,30 @@
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
 <header class="site-header border-bottom">
-  <div class="container py-3 d-flex align-items-baseline justify-content-between" style="max-width: 1180px;">
-    <a class="brand text-decoration-none" href="{{ "" | relURL }}">
-      <span class="brand-dot"></span><span class="brand-name">pdfbin.net</span>
-    </a>
-    <nav class="d-none d-md-flex gap-3 small font-monospace">
-      <a href="{{ "catalog.json" | relURL }}" class="text-decoration-none">/catalog.json</a>
-      <a href="{{ "openapi.json" | relURL }}" class="text-decoration-none">/openapi.json</a>
-      <a href="{{ "llms.txt" | relURL }}" class="text-decoration-none">/llms.txt</a>
-    </nav>
+  <div class="container pt-3 pb-3" style="max-width: 1180px;">
+    {{/* Row 1: brand + menu */}}
+    <div class="d-flex align-items-baseline justify-content-between">
+      <a class="brand text-decoration-none" href="{{ "" | relURL }}">
+        <span class="brand-dot"></span><span class="brand-name">pdfbin.net</span>
+      </a>
+      <nav class="d-none d-md-flex gap-3 small font-monospace">
+        <a href="{{ "catalog.json" | relURL }}" class="text-decoration-none">/catalog.json</a>
+        <a href="{{ "openapi.json" | relURL }}" class="text-decoration-none">/openapi.json</a>
+        <a href="{{ "llms.txt" | relURL }}" class="text-decoration-none">/llms.txt</a>
+      </nav>
+    </div>
+    {{/* Row 2: tagline + meta strip */}}
+    <div class="row align-items-baseline gx-3 gy-1 mt-2">
+      <div class="col">
+        <p class="mb-0 text-body-secondary small" style="max-width: 68ch;">
+          A free library of test PDFs at stable URLs you can drop into your test suite.
+          CC0-1.0, flat URLs, immutable bytes.
+        </p>
+      </div>
+      <div class="col-12 col-md-auto small font-monospace text-body-tertiary">
+        <span>v{{ $catalog.schema_version }}</span>
+        &middot;
+        <span>{{ $catalog.fixture_count }} fixtures</span>
+      </div>
+    </div>
   </div>
 </header>

@@ -4,20 +4,7 @@
 
 <div class="container pb-wide pt-4 pt-md-5 pb-md-5" style="max-width: 1180px;">
 
-  {{/* ===== TAGLINE / META ===== (brand is in the global nav above) */}}
-  <header class="row align-items-baseline gx-4 gy-2 pb-4 border-bottom">
-    <div class="col">
-      <p class="mb-0 text-body-secondary" style="max-width: 68ch;">
-        A free library of test PDFs at stable URLs you can drop into your test suite.
-        CC0-1.0, flat URLs, immutable bytes.
-      </p>
-    </div>
-    <div class="col-12 col-md-auto small font-monospace text-body-tertiary">
-      <span>v{{ $catalog.schema_version }}</span>
-      &middot;
-      <span>{{ $catalog.fixture_count }} fixtures</span>
-    </div>
-  </header>
+  {{/* Brand + tagline + meta strip live in the global nav partial. */}}
 
   {{/* ===== QUICK-START ===== */}}
   <section class="block mt-5">
