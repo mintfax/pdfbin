@@ -100,44 +100,121 @@
   </div>
 
   {{/* ===== DOWNLOAD ===== */}}
+  {{ $sz := $fixture.size_bytes }}
+  {{ $szFmt := "" }}
+  {{ if lt $sz 1024 }}{{ $szFmt = printf "%d B" $sz }}
+  {{ else if lt $sz 1048576 }}{{ $szFmt = printf "%.1f KB" (div (float $sz) 1024.0) }}
+  {{ else }}{{ $szFmt = printf "%.1f MB" (div (float $sz) 1048576.0) }}{{ end }}
   <section class="mt-4 d-flex flex-wrap gap-3 align-items-center">
-    <a href="{{ $fixture.url }}" download class="btn btn-primary">Download {{ $fixture.id }}.pdf</a>
-    <div class="d-inline-flex align-items-center gap-2">
-      <code class="font-monospace small text-body-secondary">curl {{ $fixture.url }} -o test.pdf</code>
-      <button type="button" class="btn btn-copy btn-outline-secondary btn-sm" data-copy="curl {{ $fixture.url }} -o test.pdf" aria-label="Copy curl command">copy</button>
+    <a href="{{ $fixture.url }}" download class="btn btn-primary btn-download">
+      Download {{ $fixture.id }}.pdf
+      <span class="ms-2 opacity-75" style="font-size: 0.78rem;">{{ $szFmt }}</span>
+    </a>
+    <span class="text-body-tertiary font-monospace small">or</span>
+    <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
+      <code class="curl-cmd flex-grow-1 bg-body-tertiary border rounded px-2 py-2">curl <span class="flag">-O</span> {{ $fixture.url }}</code>
+      <button type="button" class="btn btn-outline-secondary btn-copy flex-shrink-0" data-copy="curl -O {{ $fixture.url }}" aria-label="Copy curl command">copy</button>
     </div>
   </section>
 
   {{/* ===== RELATED ===== */}}
+  {{ $related_health := slice }}
+  {{ if hasPrefix $facets.health "corrupt-" }}
+    {{ $related_health = first 6 (where (where $catalog.fixtures "facets.health" "ne" "valid") "id" "ne" $fixture.id) }}
+  {{ end }}
+  {{ $related_access := slice }}
+  {{ if hasPrefix $facets.access "encrypted-" }}
+    {{ $related_access = first 6 (where (where $catalog.fixtures "facets.access" "ne" "open") "id" "ne" $fixture.id) }}
+  {{ end }}
   {{ $related_shape := slice }}
   {{ if ne $facets.document_shape "blank" }}
     {{ $related_shape = first 6 (where (where $catalog.fixtures "facets.document_shape" "eq" $facets.document_shape) "id" "ne" $fixture.id) }}
   {{ end }}
   {{ $related_prov := slice }}
-  {{ if ne $facets.provenance "digital-native" }}
-    {{ $related_prov = first 6 (where (where $catalog.fixtures "facets.provenance" "eq" $facets.provenance) "id" "ne" $fixture.id) }}
+  {{ if hasPrefix $facets.provenance "scanned-" }}
+    {{ $related_prov = first 6 (where (where $catalog.fixtures "facets.provenance" "ne" "digital-native") "id" "ne" $fixture.id) }}
   {{ end }}
-  {{ if or (gt (len $related_shape) 0) (gt (len $related_prov) 0) }}
+  {{ $related_spec := slice }}
+  {{ if hasPrefix $facets.spec "PDF/A" }}
+    {{ $related_spec = first 6 (where (where (where $catalog.fixtures "facets.spec" "ne" $facets.spec) "facets.spec" "in" (slice "PDF/A-1B" "PDF/A-1A" "PDF/A-2B" "PDF/A-3B" "PDF/A-4")) "id" "ne" $fixture.id) }}
+  {{ end }}
+  {{ $has_related := or (gt (len $related_health) 0) (or (gt (len $related_access) 0) (or (gt (len $related_shape) 0) (or (gt (len $related_prov) 0) (gt (len $related_spec) 0)))) }}
+  {{ if $has_related }}
     <section class="mt-5">
-      <h2 class="section-title">Related</h2>
-      <div class="row g-3 small">
-        {{ if gt (len $related_shape) 0 }}
-          <div class="col-md-6">
-            <h3 class="h6 font-monospace text-body-tertiary">document_shape: {{ $facets.document_shape }}</h3>
-            <ul class="list-unstyled">
-              {{ range $related_shape }}<li><a href="{{ printf "preview/%s/" .id | relURL }}" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
-            </ul>
-          </div>
-        {{ end }}
-        {{ if gt (len $related_prov) 0 }}
-          <div class="col-md-6">
-            <h3 class="h6 font-monospace text-body-tertiary">provenance: {{ $facets.provenance }}</h3>
-            <ul class="list-unstyled">
-              {{ range $related_prov }}<li><a href="{{ printf "preview/%s/" .id | relURL }}" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
-            </ul>
-          </div>
-        {{ end }}
-      </div>
+      <h2 class="section-head">
+        <span class="num">&sect;D</span><span class="axis">Related PDFs</span>
+        <span class="count">other PDFs sharing facets</span>
+      </h2>
+
+      {{ if gt (len $related_health) 0 }}
+        <h3 class="related-group-head">Same health <span class="meta">other corrupt PDFs</span></h3>
+        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+          {{ range $related_health }}
+            <li class="list-group-item px-0 py-2">
+              <div class="row g-3">
+                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
+                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
+              </div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}
+
+      {{ if gt (len $related_access) 0 }}
+        <h3 class="related-group-head">Same access <span class="meta">other encrypted PDFs</span></h3>
+        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+          {{ range $related_access }}
+            <li class="list-group-item px-0 py-2">
+              <div class="row g-3">
+                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
+                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
+              </div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}
+
+      {{ if gt (len $related_shape) 0 }}
+        <h3 class="related-group-head">Same document_shape <span class="meta">other {{ $facets.document_shape }} PDFs</span></h3>
+        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+          {{ range $related_shape }}
+            <li class="list-group-item px-0 py-2">
+              <div class="row g-3">
+                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
+                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
+              </div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}
+
+      {{ if gt (len $related_prov) 0 }}
+        <h3 class="related-group-head">Same provenance <span class="meta">other scanned PDFs</span></h3>
+        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+          {{ range $related_prov }}
+            <li class="list-group-item px-0 py-2">
+              <div class="row g-3">
+                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
+                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
+              </div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}
+
+      {{ if gt (len $related_spec) 0 }}
+        <h3 class="related-group-head">Other PDF/A levels</h3>
+        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+          {{ range $related_spec }}
+            <li class="list-group-item px-0 py-2">
+              <div class="row g-3">
+                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
+                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
+              </div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}
     </section>
   {{ end }}
 

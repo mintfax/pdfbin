@@ -231,6 +231,49 @@ table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem;
 .preview-meta dd { font-size: 0.85rem; word-break: break-all; }
 .preview-embed { aspect-ratio: 8.5 / 11; width: 100%; min-height: 600px; }
 
+/* Download CTA - bigger than default btn-primary */
+.btn.btn-download {
+  --bs-btn-padding-y: 0.6rem;
+  --bs-btn-padding-x: 1.1rem;
+  --bs-btn-font-size: 0.95rem;
+  --bs-btn-font-family: var(--bs-font-monospace);
+  --bs-btn-font-weight: 500;
+}
+
+/* curl command shown in the download row + on the homepage tabs */
+.curl-cmd {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.78rem;
+  white-space: pre;
+  overflow-x: auto;
+}
+.curl-cmd .flag { color: var(--bs-tertiary-color); }
+
+/* Related-PDFs list items + per-facet sub-heads */
+.related-id {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.81rem;
+  word-break: break-all;
+}
+.related-group-head {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-tertiary-color);
+  margin: 1rem 0 0.25rem;
+}
+.related-group-head .meta {
+  margin-left: 0.4rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--bs-tertiary-color);
+}
+/* Section-head right-aligned meta hint (used in §A, §D etc. on preview) */
+.section-head .count { color: var(--bs-tertiary-color); font-weight: 400; }
+
 /* 404 page typography */
 .code-404 {
   font-family: var(--bs-font-monospace);
