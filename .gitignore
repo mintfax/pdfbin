@@ -19,3 +19,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Per-project Claude memory / session state (not for the repo)
+.claude/
