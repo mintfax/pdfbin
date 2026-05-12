@@ -1,12 +1,12 @@
-baseURL = "https://mintfax.github.io/pdfbin/"
+baseURL = "https://pdfbin.net"
 languageCode = "en-us"
 title = "pdfbin.net"
 enableRobotsTXT = false
 
-# baseURL above reflects the current GitHub Pages project-site URL.
-# When pdfbin.net is registered + pointed at GH Pages with a CNAME, change
-# baseURL to "https://pdfbin.net" - all template links use {{ relURL ... }}
-# so the path prefix follows baseURL automatically.
+# Custom domain via static/CNAME -> https://pdfbin.net.
+# The /pdfbin/ project-subpath URLs (mintfax.github.io/pdfbin/...) are
+# superseded by the apex domain. All template links use {{ ... | relURL }}
+# so URLs track baseURL automatically.
 
 [params]
 description = "A free library of test PDFs at stable URLs you can drop into your test suite."
