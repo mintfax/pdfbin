@@ -15,15 +15,15 @@
     {{/* Row 2: tagline + meta strip */}}
     <div class="row align-items-baseline gx-3 gy-1 mt-2">
       <div class="col">
-        <p class="mb-0 text-body-secondary small" style="max-width: 68ch;">
+        <p class="mb-0 text-body-secondary" style="max-width: 68ch;">
           A free library of test PDFs at stable URLs you can drop into your test suite.
           CC0-1.0, flat URLs, immutable bytes.
         </p>
       </div>
-      <div class="col-12 col-md-auto small font-monospace text-body-tertiary">
-        <span>v{{ $catalog.schema_version }}</span>
-        &middot;
-        <span>{{ $catalog.fixture_count }} fixtures</span>
+      <div class="col-12 col-md-auto d-flex flex-wrap gap-4 small font-monospace text-body-tertiary">
+        <span><span class="text-body-secondary fw-semibold">v</span> {{ $catalog.schema_version }}</span>
+        <span><span class="text-body-secondary fw-semibold">fixtures</span> {{ $catalog.fixture_count }}</span>
+        <span><span class="text-body-secondary fw-semibold">license</span> CC0-1.0</span>
       </div>
     </div>
   </div>
