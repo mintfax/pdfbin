@@ -101,6 +101,19 @@ table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem;
 .card.snippet pre { margin: 0; font-size: 0.78rem; }
 .card.snippet .card-header { font-family: var(--bs-font-monospace); font-size: 0.72rem; color: var(--bs-tertiary-color); }
 
+/* Copy-to-clipboard buttons (every fixture row + the preview page) */
+.btn-copy {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.7rem;
+  padding: 1px 8px;
+  line-height: 1.4;
+}
+.btn-copy.btn-copied {
+  background-color: rgba(194, 87, 12, 0.10);
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
 /* Container width matches design */
 .container.pb-wide { max-width: 1180px; }
 

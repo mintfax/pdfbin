@@ -6,6 +6,9 @@
     {{ partial "facet-badges.html" . }}
   </td>
   <td class="text-end d-none d-md-table-cell">
-    <code class="url"><a href="{{ .url }}" class="text-decoration-none">{{ .url }}</a></code>
+    <div class="d-inline-flex align-items-center gap-2">
+      <code class="url"><a href="{{ .url }}" class="text-decoration-none">{{ .url }}</a></code>
+      <button type="button" class="btn btn-copy btn-outline-secondary btn-sm" data-copy="{{ .url }}" aria-label="Copy URL">copy</button>
+    </div>
   </td>
 </tr>

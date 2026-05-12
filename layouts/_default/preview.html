@@ -19,8 +19,9 @@
       <span class="mx-1">/</span>
       <span>{{ $fixture.id }}</span>
     </p>
-    <h1 class="font-monospace h2 mb-2">
+    <h1 class="font-monospace h2 mb-2 d-inline-flex align-items-baseline gap-3 flex-wrap">
       <a href="{{ $fixture.url }}" class="text-decoration-none">{{ $fixture.id }}.pdf</a>
+      <button type="button" class="btn btn-copy btn-outline-secondary btn-sm" data-copy="{{ $fixture.url }}" aria-label="Copy URL">copy url</button>
     </h1>
     <p class="lead mb-0">{{ $fixture.description }}</p>
     {{ if eq $fixture.status "deprecated" }}
@@ -101,7 +102,10 @@
   {{/* ===== DOWNLOAD ===== */}}
   <section class="mt-4 d-flex flex-wrap gap-3 align-items-center">
     <a href="{{ $fixture.url }}" download class="btn btn-primary">Download {{ $fixture.id }}.pdf</a>
-    <code class="font-monospace small text-body-secondary">curl {{ $fixture.url }} -o test.pdf</code>
+    <div class="d-inline-flex align-items-center gap-2">
+      <code class="font-monospace small text-body-secondary">curl {{ $fixture.url }} -o test.pdf</code>
+      <button type="button" class="btn btn-copy btn-outline-secondary btn-sm" data-copy="curl {{ $fixture.url }} -o test.pdf" aria-label="Copy curl command">copy</button>
+    </div>
   </section>
 
   {{/* ===== RELATED ===== */}}
