@@ -831,6 +831,126 @@
         }
       }
     },
+    "/scanned-clean-200dpi.pdf": {
+      "get": {
+        "summary": "Clean 200 DPI scan of a generic Letter PDF.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:scanned-clean",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scanned-clean-300dpi.pdf": {
+      "get": {
+        "summary": "Clean 300 DPI scan of a generic Letter PDF.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:scanned-clean",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scanned-noisy-300dpi.pdf": {
+      "get": {
+        "summary": "Noisy 300 DPI scan with high-density speckle noise.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:scanned-noisy",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scanned-skewed-3deg.pdf": {
+      "get": {
+        "summary": "Clean 300 DPI scan rotated 3 degrees.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:scanned-skewed",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scanned-skewed-noisy.pdf": {
+      "get": {
+        "summary": "Noisy 3-degree skewed 300 DPI scan - hardest realistic case.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:scanned-noisy-skewed",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/stream-length-mismatch.pdf": {
       "get": {
         "summary": "One stream object's /Length is overstated by 99 bytes.",

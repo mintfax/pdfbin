@@ -24,6 +24,7 @@ BUILDER_MODULES: list[str] = [
     "generate.builders.access",
     "generate.builders.spec",
     "generate.builders.features",
+    "generate.builders.provenance",
 ]
 
 

@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "site": "pdfbin.net",
   "license_default": "CC0-1.0",
-  "generated_at": "2026-05-12T17:56:15+00:00",
-  "fixture_count": 37,
+  "generated_at": "2026-05-12T17:58:49+00:00",
+  "fixture_count": 42,
   "facet_axes": {
     "health": [
       "valid",
@@ -890,6 +890,146 @@
         }
       },
       "source_script": "generate/builders/access.py:rc4_40_owner"
+    },
+    {
+      "id": "scanned-clean-200dpi",
+      "url": "https://pdfbin.net/scanned-clean-200dpi.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 17007,
+      "sha256": "f636765313bf9a1ae409b0876ce0b1976956c11884acb6c570539485b98785ac",
+      "page_count": 1,
+      "description": "Clean 200 DPI scan of a generic Letter PDF.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "scanned-clean",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "scan_quality": {
+          "dpi": 200,
+          "noise": null,
+          "skew_degrees": 0
+        }
+      },
+      "source_script": "generate/builders/provenance.py:scanned_clean_200dpi"
+    },
+    {
+      "id": "scanned-clean-300dpi",
+      "url": "https://pdfbin.net/scanned-clean-300dpi.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 27112,
+      "sha256": "5310aea82cb8ba3a9aa5073d90cb198689a06d43cb5d51b648b68d76d30b512b",
+      "page_count": 1,
+      "description": "Clean 300 DPI scan of a generic Letter PDF.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "scanned-clean",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "scan_quality": {
+          "dpi": 300,
+          "noise": null,
+          "skew_degrees": 0
+        }
+      },
+      "source_script": "generate/builders/provenance.py:scanned_clean_300dpi"
+    },
+    {
+      "id": "scanned-noisy-300dpi",
+      "url": "https://pdfbin.net/scanned-noisy-300dpi.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 776227,
+      "sha256": "f45872984357eb9094e3107155901ca57df7a611d661e69c8a2ca2fa22418049",
+      "page_count": 1,
+      "description": "Noisy 300 DPI scan with high-density speckle noise.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "scanned-noisy",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "scan_quality": {
+          "dpi": 300,
+          "noise": "high",
+          "skew_degrees": 0
+        }
+      },
+      "source_script": "generate/builders/provenance.py:scanned_noisy_300dpi"
+    },
+    {
+      "id": "scanned-skewed-3deg",
+      "url": "https://pdfbin.net/scanned-skewed-3deg.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 77626,
+      "sha256": "3e10ad087e0495a952f3b3d3313503f353a1469b1be7dea506a9c520615d4be7",
+      "page_count": 1,
+      "description": "Clean 300 DPI scan rotated 3 degrees.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "scanned-skewed",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "scan_quality": {
+          "dpi": 300,
+          "noise": null,
+          "skew_degrees": 3
+        }
+      },
+      "source_script": "generate/builders/provenance.py:scanned_skewed_3deg"
+    },
+    {
+      "id": "scanned-skewed-noisy",
+      "url": "https://pdfbin.net/scanned-skewed-noisy.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2357172,
+      "sha256": "73521f32566f00147ef1c442c2821acc48119a9380c5c1681c66c7d1f96eba83",
+      "page_count": 1,
+      "description": "Noisy 3-degree skewed 300 DPI scan - hardest realistic case.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "scanned-noisy-skewed",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "scan_quality": {
+          "dpi": 300,
+          "noise": "high",
+          "skew_degrees": 3
+        }
+      },
+      "source_script": "generate/builders/provenance.py:scanned_skewed_noisy"
     },
     {
       "id": "stream-length-mismatch",
