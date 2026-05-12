@@ -1,4 +1,5 @@
 {{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
 <div class="container py-4 py-md-5" style="max-width: 1180px;">
 
   {{/* ===== 404 HERO ===== */}}
@@ -47,7 +48,7 @@
             <span class="badge tag bg-body-tertiary text-body-secondary border">never existed</span>
           </div>
           <div class="col-md-8 small text-body-secondary lh-base">
-            Plenty of plausible test PDFs aren't in the catalog yet. The v1 catalog has 51 fixtures; if you need a particular real-world document shape or corruption pattern that isn't covered, the catalog is open to additions in future releases.
+            Plenty of plausible test PDFs aren't in the catalog yet. The catalog currently holds {{ $catalog.fixture_count }} PDFs; if you need a particular real-world document shape or corruption pattern that isn't covered, the catalog is open to additions in future releases.
           </div>
         </div>
       </li>
