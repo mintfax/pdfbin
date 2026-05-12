@@ -148,72 +148,57 @@
 
       {{ if gt (len $related_health) 0 }}
         <h3 class="related-group-head">Same health <span class="meta">other corrupt PDFs</span></h3>
-        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
-          {{ range $related_health }}
-            <li class="list-group-item px-0 py-2" data-row-href="{{ printf "preview/%s/" .id | relURL }}">
-              <div class="row g-3">
-                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
-                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
-              </div>
-            </li>
-          {{ end }}
-        </ul>
+        <div class="table-responsive mb-3">
+          <table class="table table-borderless align-top fixtures mb-0">
+            <tbody>
+              {{ range $related_health }}{{ partial "fixture-row.html" . }}{{ end }}
+            </tbody>
+          </table>
+        </div>
       {{ end }}
 
       {{ if gt (len $related_access) 0 }}
         <h3 class="related-group-head">Same access <span class="meta">other encrypted PDFs</span></h3>
-        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
-          {{ range $related_access }}
-            <li class="list-group-item px-0 py-2" data-row-href="{{ printf "preview/%s/" .id | relURL }}">
-              <div class="row g-3">
-                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
-                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
-              </div>
-            </li>
-          {{ end }}
-        </ul>
+        <div class="table-responsive mb-3">
+          <table class="table table-borderless align-top fixtures mb-0">
+            <tbody>
+              {{ range $related_access }}{{ partial "fixture-row.html" . }}{{ end }}
+            </tbody>
+          </table>
+        </div>
       {{ end }}
 
       {{ if gt (len $related_shape) 0 }}
         <h3 class="related-group-head">Same document_shape <span class="meta">other {{ $facets.document_shape }} PDFs</span></h3>
-        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
-          {{ range $related_shape }}
-            <li class="list-group-item px-0 py-2" data-row-href="{{ printf "preview/%s/" .id | relURL }}">
-              <div class="row g-3">
-                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
-                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
-              </div>
-            </li>
-          {{ end }}
-        </ul>
+        <div class="table-responsive mb-3">
+          <table class="table table-borderless align-top fixtures mb-0">
+            <tbody>
+              {{ range $related_shape }}{{ partial "fixture-row.html" . }}{{ end }}
+            </tbody>
+          </table>
+        </div>
       {{ end }}
 
       {{ if gt (len $related_prov) 0 }}
         <h3 class="related-group-head">Same provenance <span class="meta">other scanned PDFs</span></h3>
-        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
-          {{ range $related_prov }}
-            <li class="list-group-item px-0 py-2" data-row-href="{{ printf "preview/%s/" .id | relURL }}">
-              <div class="row g-3">
-                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
-                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
-              </div>
-            </li>
-          {{ end }}
-        </ul>
+        <div class="table-responsive mb-3">
+          <table class="table table-borderless align-top fixtures mb-0">
+            <tbody>
+              {{ range $related_prov }}{{ partial "fixture-row.html" . }}{{ end }}
+            </tbody>
+          </table>
+        </div>
       {{ end }}
 
       {{ if gt (len $related_spec) 0 }}
         <h3 class="related-group-head">Other PDF/A levels</h3>
-        <ul class="list-group list-group-flush mb-3" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
-          {{ range $related_spec }}
-            <li class="list-group-item px-0 py-2" data-row-href="{{ printf "preview/%s/" .id | relURL }}">
-              <div class="row g-3">
-                <div class="col-md-5"><a href="{{ printf "preview/%s/" .id | relURL }}" class="related-id link-body-emphasis text-decoration-none">{{ .id }}.pdf</a></div>
-                <div class="col-md-7 small text-body-secondary lh-sm">{{ .description }}</div>
-              </div>
-            </li>
-          {{ end }}
-        </ul>
+        <div class="table-responsive mb-3">
+          <table class="table table-borderless align-top fixtures mb-0">
+            <tbody>
+              {{ range $related_spec }}{{ partial "fixture-row.html" . }}{{ end }}
+            </tbody>
+          </table>
+        </div>
       {{ end }}
     </section>
   {{ end }}
