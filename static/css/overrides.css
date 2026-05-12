@@ -120,8 +120,8 @@ table.fixtures tbody td {
 }
 table.fixtures tbody tr[data-row-href],
 table.fixtures tbody tr[data-row-href] td { cursor: pointer; }
-table.fixtures tbody tr[data-row-href]:hover td { background: rgba(194, 87, 12, 0.06); }
-table.fixtures tbody tr[data-row-href]:hover td:first-child { box-shadow: inset 3px 0 0 var(--bs-primary); }
+table.fixtures tbody tr[data-row-href]:hover td { background-color: rgba(194, 87, 12, 0.10); }
+table.fixtures tbody tr[data-row-href]:hover td:first-child { box-shadow: inset 4px 0 0 var(--bs-primary); }
 table.fixtures tbody tr[data-row-href]:hover .id a { color: var(--bs-primary); }
 table.fixtures .id { font-family: var(--bs-font-monospace); }
 table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem; color: var(--bs-tertiary-color); }
@@ -253,8 +253,9 @@ table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem;
 .curl-cmd .flag { color: var(--bs-tertiary-color); }
 
 /* Related-PDFs list items + per-facet sub-heads */
-li.list-group-item[data-row-href] { cursor: pointer; }
-li.list-group-item[data-row-href]:hover { background: rgba(194, 87, 12, 0.06); box-shadow: inset 3px 0 0 var(--bs-primary); }
+li.list-group-item[data-row-href],
+li.list-group-item[data-row-href] * { cursor: pointer; }
+li.list-group-item[data-row-href]:hover { background-color: rgba(194, 87, 12, 0.10); box-shadow: inset 4px 0 0 var(--bs-primary); }
 li.list-group-item[data-row-href]:hover .related-id { color: var(--bs-primary); }
 .related-id {
   font-family: var(--bs-font-monospace);

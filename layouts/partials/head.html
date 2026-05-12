@@ -21,4 +21,5 @@
 <link rel="icon" type="image/svg+xml" href="{{ "favicon.svg" | relURL }}">
 <link rel="icon" type="image/png" sizes="32x32" href="{{ "favicon-32.png" | relURL }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ "apple-touch-icon.png" | relURL }}">
-<link rel="stylesheet" href="{{ "css/overrides.css" | relURL }}">
+{{ $cssHash := readFile "static/css/overrides.css" | crypto.MD5 }}
+<link rel="stylesheet" href="{{ "css/overrides.css" | relURL }}?v={{ substr $cssHash 0 8 }}">
