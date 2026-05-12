@@ -117,6 +117,10 @@ table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem;
 /* Container width matches design */
 .container.pb-wide { max-width: 1180px; }
 
+/* Sticky in-page nav for the catalog sections - background matches body
+   so it doesn't show table content underneath as it scrolls. */
+.catalog-anchors { background: var(--bs-body-bg); z-index: 10; }
+
 /* Text-page (about/license) typography */
 .text-page { max-width: 70ch; font-size: 1rem; line-height: 1.6; }
 .text-page h2 {

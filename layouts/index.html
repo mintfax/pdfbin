@@ -38,6 +38,24 @@ const blob = await (await fetch(url)).blob();
     </div>
   </section>
 
+  {{/* ===== CATALOG HEADING + JUMP NAV ===== */}}
+  <div class="mt-5 pb-3 border-bottom">
+    <h2 class="h4 mb-1" style="letter-spacing: -0.01em;">Catalog</h2>
+    <p class="text-body-secondary mb-0" style="max-width: 68ch;">
+      Five views of the same fixture set. A PDF may appear in more than one
+      section - that's the multi-axis catalog at work.
+    </p>
+  </div>
+
+  <nav class="sticky-top catalog-anchors border-bottom py-3 d-flex flex-wrap column-gap-4 row-gap-1 align-items-baseline font-monospace" style="font-size: 0.78rem;" aria-label="Catalog sections">
+    <span class="text-body-tertiary me-2">jump:</span>
+    <a href="#by-form-factor" class="link-body-emphasis text-decoration-none"><span class="text-warning-emphasis me-1">&sect;1</span>form factor</a>
+    <a href="#by-document"    class="link-body-emphasis text-decoration-none"><span class="text-warning-emphasis me-1">&sect;2</span>document shape</a>
+    <a href="#by-spec"        class="link-body-emphasis text-decoration-none"><span class="text-warning-emphasis me-1">&sect;3</span>spec compliance</a>
+    <a href="#by-provenance"  class="link-body-emphasis text-decoration-none"><span class="text-warning-emphasis me-1">&sect;4</span>provenance</a>
+    <a href="#by-fault"       class="link-body-emphasis text-decoration-none"><span class="text-warning-emphasis me-1">&sect;5</span>failure mode</a>
+  </nav>
+
   {{/* ===== BY FORM FACTOR ===== (canonical clean PDFs - lead with what works) */}}
   <section class="block mt-5" id="by-form-factor">
     <h2 class="section-title"><span class="num">&sect;1</span><span class="axis">By Form Factor</span></h2>
