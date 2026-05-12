@@ -131,9 +131,9 @@ const blob = await (await fetch(url)).blob();
       Flat URLs, immutable bytes, versioning in the catalog. Every fixture has a per-PDF preview page at <code>/preview/&lt;id&gt;/</code>.
     </p>
     <ul class="list-unstyled font-monospace small">
-      <li><a href="/catalog.json">/catalog.json</a> - typed catalog with facets, sha256, lifecycle per PDF</li>
-      <li><a href="/openapi.json">/openapi.json</a> - OpenAPI 3.1 spec with every fixture as a GET endpoint</li>
-      <li><a href="/llms.txt">/llms.txt</a> - AI-agent summary</li>
+      <li><a href="{{ "catalog.json" | relURL }}">/catalog.json</a> - typed catalog with facets, sha256, lifecycle per PDF</li>
+      <li><a href="{{ "openapi.json" | relURL }}">/openapi.json</a> - OpenAPI 3.1 spec with every fixture as a GET endpoint</li>
+      <li><a href="{{ "llms.txt" | relURL }}">/llms.txt</a> - AI-agent summary</li>
       <li><a href="https://github.com/mintfax/pdfbin">github.com/mintfax/pdfbin</a> - source</li>
     </ul>
   </section>

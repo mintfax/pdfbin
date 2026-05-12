@@ -1,6 +1,6 @@
 {{/* Render one fixture as a <tr>. Expects a fixture record from catalog.json. */}}
 <tr class="fixture-row">
-  <td><code class="id"><a href="/preview/{{ .id }}/" class="text-decoration-none">{{ .id }}.pdf</a></code></td>
+  <td><code class="id"><a href="{{ printf "preview/%s/" .id | relURL }}" class="text-decoration-none">{{ .id }}.pdf</a></code></td>
   <td>{{ .description }}</td>
   <td class="facets">
     {{ partial "facet-badges.html" . }}

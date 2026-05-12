@@ -5,7 +5,7 @@ layout: text-page
 
 pdfbin.net is a free CC0 library of test PDFs you can drop into your test
 suite. Every PDF lives at a stable flat URL; bytes are immutable; multi-axis
-typed metadata lives in [/catalog.json](/catalog.json).
+typed metadata lives in [catalog.json](../catalog.json).
 
 ## Why this exists
 

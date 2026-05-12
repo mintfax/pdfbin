@@ -13,7 +13,7 @@
   {{/* ===== IDENTITY ===== */}}
   <header class="mb-4">
     <p class="small font-monospace text-body-tertiary mb-2">
-      <a href="/" class="text-decoration-none">pdfbin.net</a>
+      <a href="{{ "" | relURL }}" class="text-decoration-none">pdfbin.net</a>
       <span class="mx-1">/</span>
       <span>preview</span>
       <span class="mx-1">/</span>
@@ -26,7 +26,7 @@
     {{ if eq $fixture.status "deprecated" }}
       <div class="alert alert-warning small mt-3">
         This PDF is deprecated. Use
-        <a href="/preview/{{ $fixture.superseded_by }}/" class="font-monospace">{{ $fixture.superseded_by }}.pdf</a>
+        <a href="{{ printf "preview/%s/" $fixture.superseded_by | relURL }}" class="font-monospace">{{ $fixture.superseded_by }}.pdf</a>
         instead - the bytes here are preserved for backward compatibility.
       </div>
     {{ end }}
@@ -69,7 +69,7 @@
             <dt class="col-4">Pages</dt><dd class="col-8">{{ $fixture.page_count }}</dd>
             <dt class="col-4">Added</dt><dd class="col-8">{{ $fixture.added }}</dd>
             <dt class="col-4">Status</dt><dd class="col-8"><span class="badge tag bg-success-subtle text-success-emphasis border border-success-subtle">{{ $fixture.status }}</span></dd>
-            <dt class="col-4">License</dt><dd class="col-8"><a href="/license/">{{ $fixture.license }}</a></dd>
+            <dt class="col-4">License</dt><dd class="col-8"><a href="{{ "license/" | relURL }}">{{ $fixture.license }}</a></dd>
           </dl>
 
           <h2 class="section-title">Facets</h2>
@@ -121,7 +121,7 @@
           <div class="col-md-6">
             <h3 class="h6 font-monospace text-body-tertiary">document_shape: {{ $facets.document_shape }}</h3>
             <ul class="list-unstyled">
-              {{ range $related_shape }}<li><a href="/preview/{{ .id }}/" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
+              {{ range $related_shape }}<li><a href="{{ printf "preview/%s/" .id | relURL }}" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
             </ul>
           </div>
         {{ end }}
@@ -129,7 +129,7 @@
           <div class="col-md-6">
             <h3 class="h6 font-monospace text-body-tertiary">provenance: {{ $facets.provenance }}</h3>
             <ul class="list-unstyled">
-              {{ range $related_prov }}<li><a href="/preview/{{ .id }}/" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
+              {{ range $related_prov }}<li><a href="{{ printf "preview/%s/" .id | relURL }}" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
             </ul>
           </div>
         {{ end }}
@@ -137,7 +137,7 @@
     </section>
   {{ end }}
 
-  <p class="mt-5 pt-4 border-top small"><a href="/">&larr; back to all PDFs</a></p>
+  <p class="mt-5 pt-4 border-top small"><a href="{{ "" | relURL }}">&larr; back to all PDFs</a></p>
 
 </div>
 {{ end }}

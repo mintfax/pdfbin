@@ -1,12 +1,12 @@
 <header class="site-header border-bottom">
   <div class="container py-3 d-flex align-items-baseline justify-content-between" style="max-width: 1180px;">
-    <a class="brand text-decoration-none" href="/">
+    <a class="brand text-decoration-none" href="{{ "" | relURL }}">
       <span class="brand-dot"></span><span class="brand-name">pdfbin.net</span>
     </a>
     <nav class="d-none d-md-flex gap-3 small font-monospace">
-      <a href="/catalog.json" class="text-decoration-none">/catalog.json</a>
-      <a href="/openapi.json" class="text-decoration-none">/openapi.json</a>
-      <a href="/llms.txt" class="text-decoration-none">/llms.txt</a>
+      <a href="{{ "catalog.json" | relURL }}" class="text-decoration-none">/catalog.json</a>
+      <a href="{{ "openapi.json" | relURL }}" class="text-decoration-none">/openapi.json</a>
+      <a href="{{ "llms.txt" | relURL }}" class="text-decoration-none">/llms.txt</a>
       <a href="https://github.com/mintfax/pdfbin" class="text-decoration-none">source</a>
     </nav>
   </div>
