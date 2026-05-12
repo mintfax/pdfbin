@@ -1,0 +1,143 @@
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+{{ $id := .Params.fixture_id }}
+{{ $matches := where $catalog.fixtures "id" $id }}
+{{ if eq (len $matches) 0 }}
+  {{ errorf "preview.html: no fixture matching id=%q in catalog.json" $id }}
+{{ end }}
+{{ $fixture := index $matches 0 }}
+{{ $facets := $fixture.facets }}
+
+<div class="container pb-wide py-4 py-md-5" style="max-width: 1180px;">
+
+  {{/* ===== IDENTITY ===== */}}
+  <header class="mb-4">
+    <p class="small font-monospace text-body-tertiary mb-2">
+      <a href="/" class="text-decoration-none">pdfbin.net</a>
+      <span class="mx-1">/</span>
+      <span>preview</span>
+      <span class="mx-1">/</span>
+      <span>{{ $fixture.id }}</span>
+    </p>
+    <h1 class="font-monospace h2 mb-2">
+      <a href="{{ $fixture.url }}" class="text-decoration-none">{{ $fixture.id }}.pdf</a>
+    </h1>
+    <p class="lead mb-0">{{ $fixture.description }}</p>
+    {{ if eq $fixture.status "deprecated" }}
+      <div class="alert alert-warning small mt-3">
+        This PDF is deprecated. Use
+        <a href="/preview/{{ $fixture.superseded_by }}/" class="font-monospace">{{ $fixture.superseded_by }}.pdf</a>
+        instead - the bytes here are preserved for backward compatibility.
+      </div>
+    {{ end }}
+  </header>
+
+  {{/* ===== STATUS NOTICES ===== */}}
+  {{ if hasPrefix $facets.health "corrupt-" }}
+    <div class="alert alert-warning small">
+      <strong>Intentionally corrupt</strong> ({{ $facets.health }}). This PDF will likely fail to render in viewers - that's the test surface. Download to inspect.
+    </div>
+  {{ end }}
+  {{ if hasPrefix $facets.access "encrypted-" }}
+    <div class="alert alert-primary-bg-subtle small" style="background: var(--bs-primary-bg-subtle); border: 1px solid var(--bs-primary-border-subtle); color: var(--bs-primary-text-emphasis); padding: 0.75rem 1rem; border-radius: 0.375rem;">
+      <strong>Encrypted</strong> ({{ $facets.access }}). Open with: owner=<code>{{ $facets.passwords.owner }}</code>{{ if $facets.passwords.user }}, user=<code>{{ $facets.passwords.user }}</code>{{ end }}.
+    </div>
+  {{ end }}
+
+  <div class="row g-4 mt-1">
+
+    {{/* ===== PDF VIEWER ===== */}}
+    <div class="col-12 col-lg-7">
+      <div class="preview-embed border rounded bg-white" style="overflow: hidden;">
+        <embed src="{{ $fixture.url }}" type="application/pdf" width="100%" height="100%" style="min-height: 720px; display: block;">
+      </div>
+      <p class="small text-body-secondary mt-2">
+        If the PDF doesn't render above, <a href="{{ $fixture.url }}">download it directly</a>.
+        Mobile browsers may download instead of rendering inline.
+      </p>
+    </div>
+
+    {{/* ===== METADATA ===== */}}
+    <aside class="col-12 col-lg-5 preview-meta">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="section-title">Identity</h2>
+          <dl class="row gx-2 small mb-3">
+            <dt class="col-4">URL</dt><dd class="col-8 font-monospace">{{ $fixture.url }}</dd>
+            <dt class="col-4">SHA-256</dt><dd class="col-8 font-monospace">{{ $fixture.sha256 }}</dd>
+            <dt class="col-4">Size</dt><dd class="col-8">{{ $fixture.size_bytes }} bytes</dd>
+            <dt class="col-4">Pages</dt><dd class="col-8">{{ $fixture.page_count }}</dd>
+            <dt class="col-4">Added</dt><dd class="col-8">{{ $fixture.added }}</dd>
+            <dt class="col-4">Status</dt><dd class="col-8"><span class="badge tag bg-success-subtle text-success-emphasis border border-success-subtle">{{ $fixture.status }}</span></dd>
+            <dt class="col-4">License</dt><dd class="col-8"><a href="/license/">{{ $fixture.license }}</a></dd>
+          </dl>
+
+          <h2 class="section-title">Facets</h2>
+          <dl class="row gx-2 small mb-3">
+            <dt class="col-5">health</dt><dd class="col-7">{{ partial "single-badge.html" $facets.health }}</dd>
+            <dt class="col-5">access</dt><dd class="col-7">{{ partial "single-badge.html" $facets.access }}</dd>
+            <dt class="col-5">document_shape</dt><dd class="col-7">{{ partial "single-badge.html" $facets.document_shape }}</dd>
+            <dt class="col-5">provenance</dt><dd class="col-7">{{ partial "single-badge.html" $facets.provenance }}</dd>
+            <dt class="col-5">paper_size</dt><dd class="col-7">{{ partial "single-badge.html" $facets.paper_size }}</dd>
+            <dt class="col-5">orientation</dt><dd class="col-7">{{ partial "single-badge.html" $facets.orientation }}</dd>
+            <dt class="col-5">spec</dt><dd class="col-7">{{ partial "single-badge.html" $facets.spec }}</dd>
+            {{ with $facets.features }}{{ if gt (len .) 0 }}
+              <dt class="col-5">features</dt>
+              <dd class="col-7">{{ range . }}<span class="badge tag bg-body-tertiary text-body-secondary border">{{ . }}</span> {{ end }}</dd>
+            {{ end }}{{ end }}
+            {{ with $facets.scan_quality }}
+              <dt class="col-5">scan_quality</dt>
+              <dd class="col-7 font-monospace">dpi={{ .dpi }}{{ with .noise }}, noise={{ . }}{{ end }}{{ if gt .skew_degrees 0 }}, skew={{ .skew_degrees }}&deg;{{ end }}</dd>
+            {{ end }}
+          </dl>
+
+          <h2 class="section-title">Source</h2>
+          <p class="small font-monospace mb-0"><a href="https://github.com/mintfax/pdfbin/blob/dev/{{ replaceRE ":.*" "" $fixture.source_script }}">{{ $fixture.source_script }}</a></p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  {{/* ===== DOWNLOAD ===== */}}
+  <section class="mt-4 d-flex flex-wrap gap-3 align-items-center">
+    <a href="{{ $fixture.url }}" download class="btn btn-primary">Download {{ $fixture.id }}.pdf</a>
+    <code class="font-monospace small text-body-secondary">curl {{ $fixture.url }} -o test.pdf</code>
+  </section>
+
+  {{/* ===== RELATED ===== */}}
+  {{ $related_shape := slice }}
+  {{ if ne $facets.document_shape "blank" }}
+    {{ $related_shape = first 6 (where (where $catalog.fixtures "facets.document_shape" "eq" $facets.document_shape) "id" "ne" $fixture.id) }}
+  {{ end }}
+  {{ $related_prov := slice }}
+  {{ if ne $facets.provenance "digital-native" }}
+    {{ $related_prov = first 6 (where (where $catalog.fixtures "facets.provenance" "eq" $facets.provenance) "id" "ne" $fixture.id) }}
+  {{ end }}
+  {{ if or (gt (len $related_shape) 0) (gt (len $related_prov) 0) }}
+    <section class="mt-5">
+      <h2 class="section-title">Related</h2>
+      <div class="row g-3 small">
+        {{ if gt (len $related_shape) 0 }}
+          <div class="col-md-6">
+            <h3 class="h6 font-monospace text-body-tertiary">document_shape: {{ $facets.document_shape }}</h3>
+            <ul class="list-unstyled">
+              {{ range $related_shape }}<li><a href="/preview/{{ .id }}/" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
+            </ul>
+          </div>
+        {{ end }}
+        {{ if gt (len $related_prov) 0 }}
+          <div class="col-md-6">
+            <h3 class="h6 font-monospace text-body-tertiary">provenance: {{ $facets.provenance }}</h3>
+            <ul class="list-unstyled">
+              {{ range $related_prov }}<li><a href="/preview/{{ .id }}/" class="font-monospace">{{ .id }}.pdf</a> - <span class="text-body-secondary">{{ .description }}</span></li>{{ end }}
+            </ul>
+          </div>
+        {{ end }}
+      </div>
+    </section>
+  {{ end }}
+
+  <p class="mt-5 pt-4 border-top small"><a href="/">&larr; back to all PDFs</a></p>
+
+</div>
+{{ end }}

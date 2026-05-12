@@ -1,0 +1,17 @@
+{{ define "main" }}
+<div class="container pb-wide py-4 py-md-5" style="max-width: 1180px;">
+  <header class="mb-4 pb-3 border-bottom">
+    <h1 class="h2">{{ .Title }}</h1>
+  </header>
+  <p class="text-body-secondary">
+    This is a generated section index. Browse the homepage at
+    <a href="/">/</a> for the multi-view catalog, or jump straight to a
+    specific PDF preview via <code>/preview/&lt;id&gt;/</code>.
+  </p>
+  {{ if eq .Section "preview" }}
+    <ul class="list-unstyled font-monospace small mt-4">
+      {{ range .Pages.ByTitle }}<li><a href="{{ .Permalink }}">{{ .Params.fixture_id }}.pdf</a></li>{{ end }}
+    </ul>
+  {{ end }}
+</div>
+{{ end }}

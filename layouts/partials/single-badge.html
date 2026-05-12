@@ -1,0 +1,6 @@
+{{/* Render one facet value as a small badge. Input is the value string. */}}
+{{- $v := . -}}
+{{- if hasPrefix $v "corrupt-" -}}<span class="badge tag bg-warning-subtle text-warning-emphasis border border-warning-subtle">{{ $v }}</span>
+{{- else if hasPrefix $v "encrypted-" -}}<span class="badge tag bg-warning-subtle text-warning-emphasis border border-warning-subtle">{{ $v }}</span>
+{{- else -}}<span class="badge tag bg-body-tertiary text-body-secondary border">{{ $v }}</span>
+{{- end -}}
