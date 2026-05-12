@@ -34,3 +34,51 @@ Note on terminology: user-facing copy uses "PDFs" / "test PDFs". Code-level
 identifiers (the `FixtureRecord` class, the `fixtures` array in catalog.json,
 test function names) keep "fixture" because it's the precise programming term
 for what these objects are in a test-suite context.
+
+## Development
+
+```bash
+# Install Python deps
+pip install -r requirements.txt
+
+# Regenerate every fixture + catalog.json + llms.txt + openapi.json
+# and content/preview/<id>.md stubs.
+python -m generate.pipeline
+
+# Build the Hugo site (output to ./public/).
+hugo --minify
+
+# Run tests
+pytest
+```
+
+System dependencies (also handled by the CI Dockerfile):
+
+- `qpdf` (used by pikepdf for encryption)
+- `ghostscript` (used for PDF/A generation and scan rasterization)
+
+CI fails if `git diff --exit-code static/ content/preview/` shows drift after
+a regenerate. Regenerate locally and commit.
+
+Two- and three- way branch flow:
+
+- `dev` is the default branch. All work happens here. Pushes trigger the
+  `build` workflow (pytest, pipeline drift check, Hugo smoke build).
+- `production` is the deploy target. Pushes trigger the `deploy` workflow
+  to build with Hugo and publish to GitHub Pages.
+- Caddy at `https://pdfbin.example.dev` serves `./public/` locally for
+  dev previews. Rebuild with `hugo --minify` and the change is live.
+
+Note on regeneration semantics:
+
+- Most fixtures are byte-stable: same input -> same output bytes across
+  regenerations. Reportlab uses `invariant=1`; size-padding is a
+  deterministic SHA-256 expansion.
+- Encrypted (`aes*`, `rc4-*`) and Ghostscript-produced PDF/A fixtures and a
+  few platypus-built documents use a "once authored, never regenerated"
+  pattern: if a file already exists on disk, its bytes are reused. To
+  deliberately rotate one of those, delete the file and re-run the
+  pipeline. The reason is that qpdf and Ghostscript both emit per-save
+  random bytes (encryption salt, internal IDs) that pikepdf cannot fully
+  pin. Per the project's URL-immutability rule, this matches the design
+  intent anyway.

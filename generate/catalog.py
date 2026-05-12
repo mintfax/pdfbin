@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import datetime as dt
 import json
 from pathlib import Path
 
@@ -13,12 +12,16 @@ BASE_URL = "https://pdfbin.net"
 
 
 def emit_catalog(records: list[FixtureRecord], path: Path) -> None:
-    """Write catalog.json - schema version, facet vocabularies, and one entry per fixture."""
+    """Write catalog.json - schema version, facet vocabularies, and one entry per fixture.
+
+    Note: `generated_at` is deliberately omitted - it would be regenerated
+    every build and break the CI no-drift check. Use git commit history (or
+    the fixture-level `added` field) for temporal info.
+    """
     doc = {
         "schema_version": SCHEMA_VERSION,
         "site": "pdfbin.net",
         "license_default": "CC0-1.0",
-        "generated_at": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         "fixture_count": len(records),
         "facet_axes": facet_axes_vocabulary(),
         "fixtures": [r.to_catalog_entry(BASE_URL) for r in records],
