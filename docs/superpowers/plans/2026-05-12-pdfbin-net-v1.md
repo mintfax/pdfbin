@@ -1,0 +1,3439 @@
+# pdfbin.net v1 Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Ship pdfbin.net v1 - a free CC0 library of ~52 test PDFs at flat immutable URLs, with a typed multi-axis catalog, multi-view static HTML index, and full discovery surfaces (catalog.json, llms.txt, openapi.json).
+
+**Architecture:** Hugo static site on GitHub Pages. Python generation pipeline (pikepdf, reportlab, img2pdf, Pillow, Ghostscript shell-out) produces every fixture and the catalog into `static/`. Hugo reads catalog.json at build time via `readFile`+`transform.Unmarshal` and renders multi-view HTML. CI Docker image carries qpdf+ghostscript; build action enforces no-drift between `generate/` and `static/`.
+
+**Tech Stack:** Python 3.12, Hugo (extended, latest), pikepdf, reportlab, img2pdf, Pillow, pypdf, Ghostscript, qpdf, GitHub Actions, GitHub Pages, Caddy (dev preview).
+
+**Source spec:** `docs/superpowers/specs/2026-05-12-pdfbin-net-design.md`.
+
+---
+
+## Pre-flight (manual user actions, not implementation steps)
+
+1. **Register `pdfbin.net`.** The whole plan rests on the domain being held by the project.
+2. **Download a blank IRS Form 1040** PDF from irs.gov (current tax year) and save it locally for use in Task 11. Note the URL and year for `PROVENANCE.md`.
+3. **Configure DNS for GitHub Pages** once the production deploy lands (Task 21). Out of scope for code; covered by GH Pages docs.
+
+## File map
+
+Files created or modified across the plan:
+
+```
+.gitignore
+README.md
+LICENSE
+CLAUDE.md
+pyproject.toml
+requirements.txt
+hugo.toml
+
+generate/
+  __init__.py
+  facets.py
+  scanning.py
+  catalog.py
+  pipeline.py
+  sources/
+    PROVENANCE.md
+    irs-1040-blank.pdf            (manually placed)
+  builders/
+    __init__.py
+    form_factor.py
+    size.py
+    health.py
+    access.py
+    spec.py
+    features.py
+    provenance.py
+    documents.py
+
+tests/
+  __init__.py
+  test_facets.py
+  test_catalog.py
+  test_builders_form_factor.py
+  test_builders_size.py
+  test_builders_health.py
+  test_builders_access.py
+  test_builders_spec.py
+  test_builders_features.py
+  test_builders_provenance.py
+  test_builders_documents.py
+  test_pipeline.py
+
+archetypes/default.md
+content/
+  _index.md
+  by-fault.md
+  by-document.md
+  by-provenance.md
+  by-spec.md
+  by-form-factor.md
+  about.md
+  license.md
+layouts/
+  _default/baseof.html
+  index.html
+  by-fault.html
+  by-document.html
+  by-provenance.html
+  by-spec.html
+  by-form-factor.html
+  partials/
+    head.html
+    footer.html
+    fixture-row.html
+static/
+  robots.txt
+  # (catalog.json, llms.txt, openapi.json, *.pdf produced by pipeline)
+assets/css/main.css
+
+Dockerfile
+.dockerignore
+.github/workflows/
+  build.yml
+  deploy.yml
+```
+
+---
+
+## Task 1: Repo bootstrap files
+
+**Files:**
+- Create: `.gitignore`
+- Create: `README.md`
+- Create: `LICENSE`
+- Create: `CLAUDE.md`
+- Create: `pyproject.toml`
+- Create: `requirements.txt`
+
+- [ ] **Step 1: Write `.gitignore`**
+
+```gitignore
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Hugo
+public/
+resources/
+.hugo_build.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+```
+
+- [ ] **Step 2: Write `README.md`**
+
+```markdown
+# pdfbin
+
+Source repository for [pdfbin.net](https://pdfbin.net) - a free CC0 library of
+test PDFs at stable URLs you can drop into your test suite.
+
+Each fixture is a PDF that does one specific thing: clean, corrupt in a known
+way, encrypted with a documented password, oversized, PDF/A compliant, a scan,
+a form, or shaped like a real-world document (fax cover, invoice, IRS 1040,
+lab report). Every fixture has typed facet metadata so the same fixture can be
+discovered along multiple axes.
+
+URLs are flat and immutable. The bytes at `/<id>.pdf` today are the same bytes
+there next year. If a fixture is wrong, a new ID ships and the old one stays.
+
+## Discovery surfaces
+
+- https://pdfbin.net/                  HTML index, multi-view
+- https://pdfbin.net/catalog.json      typed catalog with facets per fixture
+- https://pdfbin.net/openapi.json      OpenAPI 3.1 spec
+- https://pdfbin.net/llms.txt          AI-agent summary
+
+## License
+
+All fixtures CC0-1.0. Site and pipeline code MIT.
+
+## Working with this repo
+
+See `CLAUDE.md` for working rules. See `docs/superpowers/specs/` for the
+design spec and `docs/superpowers/plans/` for the implementation plan.
+```
+
+- [ ] **Step 3: Write `LICENSE`**
+
+```
+MIT License
+
+Copyright (c) 2026 mintfax
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+The PDF fixtures served from pdfbin.net (files under static/*.pdf and the
+content of catalog.json) are released under Creative Commons CC0-1.0
+(public domain dedication). See https://creativecommons.org/publicdomain/zero/1.0/
+for the full text.
+```
+
+- [ ] **Step 4: Write `CLAUDE.md`**
+
+```markdown
+# pdfbin
+
+Source repo for pdfbin.net - a CC0 library of test PDFs at stable flat URLs.
+See `docs/superpowers/specs/2026-05-12-pdfbin-net-design.md` for the design.
+
+## Working rules
+
+- Commit and push after every change.
+- Do not run `hugo server`. A one-shot `hugo --minify` is fine and is how you
+  refresh the preview - Caddy serves `public/` publicly at
+  https://pdfbin.example.dev. Rebuild after each push to verify.
+- The Python pipeline regenerates everything. Run `python -m generate.pipeline`
+  from the repo root. Output lives in `static/`. CI fails if `git diff
+  --exit-code static/` shows drift after a regenerate.
+- Two-branch flow. `dev` is the default branch; pushing to `production`
+  triggers GH Pages deploy.
+- Fixtures are immutable. Never change the bytes at an existing `/<id>.pdf`.
+  If a fixture is wrong, add a new ID and mark the old one
+  `"status": "deprecated"` in catalog.json with a `superseded_by` pointer.
+- Facet vocabularies live in `generate/facets.py` and are the single source
+  of truth. Adding a value bumps the catalog schema_version.
+```
+
+- [ ] **Step 5: Write `pyproject.toml`**
+
+```toml
+[project]
+name = "pdfbin"
+version = "0.1.0"
+description = "Generation pipeline for pdfbin.net"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -v"
+
+[tool.setuptools.packages.find]
+include = ["generate*"]
+```
+
+- [ ] **Step 6: Write `requirements.txt`**
+
+```
+pikepdf>=9.0
+reportlab>=4.0
+img2pdf>=0.5
+Pillow>=10.0
+pypdf>=4.0
+pydantic>=2.0
+pytest>=8.0
+```
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add .gitignore README.md LICENSE CLAUDE.md pyproject.toml requirements.txt
+git commit -m "feat: repo bootstrap (readme, license, working rules, deps)"
+git push
+```
+
+---
+
+## Task 2: Facets module with typed validation
+
+**Files:**
+- Create: `generate/__init__.py` (empty)
+- Create: `generate/facets.py`
+- Create: `tests/__init__.py` (empty)
+- Create: `tests/test_facets.py`
+
+- [ ] **Step 1: Create empty package init files**
+
+```bash
+touch generate/__init__.py tests/__init__.py
+```
+
+- [ ] **Step 2: Write the failing test**
+
+`tests/test_facets.py`:
+
+```python
+import pytest
+from pydantic import ValidationError
+from generate.facets import FixtureRecord, Health, Access, DocumentShape, Provenance, PaperSize, Spec, Feature
+
+
+def test_minimal_valid_record():
+    r = FixtureRecord(
+        id="clean-letter-1page",
+        size_bytes=12345,
+        sha256="a" * 64,
+        page_count=1,
+        description="Minimal clean Letter, one page.",
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        source_script="generate/builders/form_factor.py:clean_letter_1page",
+    )
+    assert r.id == "clean-letter-1page"
+    assert r.facets_dict()["health"] == "valid"
+
+
+def test_unknown_health_value_rejected():
+    with pytest.raises(ValidationError):
+        FixtureRecord(
+            id="x", size_bytes=1, sha256="a"*64, page_count=1, description="x",
+            health="corrupt-not-a-real-value",
+            access=Access.OPEN, document_shape=DocumentShape.BLANK,
+            provenance=Provenance.DIGITAL_NATIVE, paper_size=PaperSize.US_LETTER,
+            orientation="portrait", spec=Spec.PDF_1_7, features=set(),
+            source_script="x:y",
+        )
+
+
+def test_encrypted_record_carries_passwords():
+    r = FixtureRecord(
+        id="aes256-owner", size_bytes=2000, sha256="b"*64, page_count=1,
+        description="AES-256 with owner password only.",
+        health=Health.VALID,
+        access=Access.ENCRYPTED_AES256_OWNER,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        passwords={"owner": "ownerpass", "user": None},
+        source_script="generate/builders/access.py:aes256_owner",
+    )
+    d = r.to_catalog_entry()
+    assert d["facets"]["access"] == "encrypted-aes256-owner"
+    assert d["facets"]["passwords"] == {"owner": "ownerpass", "user": None}
+
+
+def test_scanned_record_carries_scan_quality():
+    r = FixtureRecord(
+        id="scanned-noisy-300dpi", size_bytes=300000, sha256="c"*64, page_count=1,
+        description="Noisy 300 DPI scan.",
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.SCANNED_NOISY,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        scan_quality={"dpi": 300, "noise": "high", "skew_degrees": 0},
+        source_script="generate/builders/provenance.py:scanned_noisy_300dpi",
+    )
+    d = r.to_catalog_entry()
+    assert d["facets"]["scan_quality"]["dpi"] == 300
+```
+
+- [ ] **Step 3: Run the test to verify it fails**
+
+Run: `pytest tests/test_facets.py -v`
+Expected: FAIL with import error (generate.facets does not exist yet).
+
+- [ ] **Step 4: Implement `generate/facets.py`**
+
+```python
+"""Controlled vocabulary for fixture facets, plus typed record model.
+
+Single source of truth for what values each facet axis may take. Builders
+must use these enums; the catalog emitter relies on the enum membership for
+validation. Adding a new value bumps the catalog schema_version.
+"""
+
+from __future__ import annotations
+
+from enum import Enum
+from typing import Literal, Optional
+from pydantic import BaseModel, Field, ConfigDict
+
+
+class Health(str, Enum):
+    VALID = "valid"
+    CORRUPT_XREF_TRUNCATED = "corrupt-xref-truncated"
+    CORRUPT_HEADER_TRUNCATED = "corrupt-header-truncated"
+    CORRUPT_STREAM_LENGTH_MISMATCH = "corrupt-stream-length-mismatch"
+    CORRUPT_OBJECT_GENERATION_MISMATCH = "corrupt-object-generation-mismatch"
+    CORRUPT_TRAILER_MISSING = "corrupt-trailer-missing"
+    CORRUPT_EOF_MISSING = "corrupt-eof-missing"
+    CORRUPT_BYTE_FLIPPED = "corrupt-byte-flipped"
+
+
+class Access(str, Enum):
+    OPEN = "open"
+    ENCRYPTED_AES256_OWNER = "encrypted-aes256-owner"
+    ENCRYPTED_AES256_USER = "encrypted-aes256-user"
+    ENCRYPTED_AES256_BOTH = "encrypted-aes256-both"
+    ENCRYPTED_AES128_OWNER = "encrypted-aes128-owner"
+    ENCRYPTED_AES128_USER = "encrypted-aes128-user"
+    ENCRYPTED_RC4_128_OWNER = "encrypted-rc4-128-owner"
+    ENCRYPTED_RC4_40_OWNER = "encrypted-rc4-40-owner"
+
+
+class DocumentShape(str, Enum):
+    BLANK = "blank"
+    FAX_COVER_SHEET = "fax-cover-sheet"
+    INVOICE = "invoice"
+    RECEIPT = "receipt"
+    IRS_1040 = "irs-1040"
+    BANK_STATEMENT = "bank-statement"
+    CONTRACT_NDA = "contract-nda"
+    LAB_REPORT = "lab-report"
+
+
+class Provenance(str, Enum):
+    DIGITAL_NATIVE = "digital-native"
+    SCANNED_CLEAN = "scanned-clean"
+    SCANNED_NOISY = "scanned-noisy"
+    SCANNED_SKEWED = "scanned-skewed"
+    SCANNED_NOISY_SKEWED = "scanned-noisy-skewed"
+
+
+class PaperSize(str, Enum):
+    DIN_A4 = "DIN-A4"
+    US_LETTER = "US-Letter"
+    JIS_B5 = "JIS-B5"
+    MIXED = "mixed"
+
+
+class Spec(str, Enum):
+    PDF_1_4 = "PDF-1.4"
+    PDF_1_7 = "PDF-1.7"
+    PDF_2_0 = "PDF-2.0"
+    PDFA_1B = "PDF/A-1B"
+    PDFA_1A = "PDF/A-1A"
+    PDFA_2B = "PDF/A-2B"
+    PDFA_3B = "PDF/A-3B"
+    PDFA_4 = "PDF/A-4"
+
+
+class Feature(str, Enum):
+    ACROFORM = "acroform"
+    SIGNED = "signed"
+    EMBEDDED_FILE = "embedded-file"
+
+
+Orientation = Literal["portrait", "landscape", "mixed"]
+
+
+class FixtureRecord(BaseModel):
+    """Typed record emitted by every builder. Validated by the pipeline.
+
+    The catalog entry serialization (`to_catalog_entry`) flattens facets
+    into a nested `facets` object, which is the contract for catalog.json.
+    """
+    model_config = ConfigDict(use_enum_values=False)
+
+    id: str = Field(min_length=1)
+    size_bytes: int = Field(ge=0)
+    sha256: str = Field(min_length=64, max_length=64)
+    page_count: int = Field(ge=1)
+    description: str = Field(min_length=1)
+    health: Health
+    access: Access
+    document_shape: DocumentShape
+    provenance: Provenance
+    paper_size: PaperSize
+    orientation: Orientation
+    spec: Spec
+    features: set[Feature]
+    passwords: Optional[dict] = None        # {"owner": str|None, "user": str|None}
+    scan_quality: Optional[dict] = None     # {"dpi": int, "noise": "low|high", "skew_degrees": int}
+    source_script: str = Field(min_length=1)
+    added: str = "2026-05-12"
+    status: Literal["current", "deprecated"] = "current"
+    superseded_by: Optional[str] = None
+
+    def facets_dict(self) -> dict:
+        d = {
+            "health": self.health.value,
+            "access": self.access.value,
+            "document_shape": self.document_shape.value,
+            "provenance": self.provenance.value,
+            "paper_size": self.paper_size.value,
+            "orientation": self.orientation,
+            "spec": self.spec.value,
+            "features": sorted(f.value for f in self.features),
+        }
+        if self.passwords is not None:
+            d["passwords"] = self.passwords
+        if self.scan_quality is not None:
+            d["scan_quality"] = self.scan_quality
+        return d
+
+    def to_catalog_entry(self, base_url: str = "https://pdfbin.net") -> dict:
+        return {
+            "id": self.id,
+            "url": f"{base_url}/{self.id}.pdf",
+            "added": self.added,
+            "status": self.status,
+            "superseded_by": self.superseded_by,
+            "license": "CC0-1.0",
+            "size_bytes": self.size_bytes,
+            "sha256": self.sha256,
+            "page_count": self.page_count,
+            "description": self.description,
+            "facets": self.facets_dict(),
+            "source_script": self.source_script,
+        }
+
+
+def facet_axes_vocabulary() -> dict[str, list[str]]:
+    """Snapshot the controlled vocabularies; embedded in catalog.json."""
+    return {
+        "health": [m.value for m in Health],
+        "access": [m.value for m in Access],
+        "document_shape": [m.value for m in DocumentShape],
+        "provenance": [m.value for m in Provenance],
+        "paper_size": [m.value for m in PaperSize],
+        "spec": [m.value for m in Spec],
+        "features": [m.value for m in Feature],
+    }
+```
+
+- [ ] **Step 5: Run tests to verify pass**
+
+Run: `pytest tests/test_facets.py -v`
+Expected: 4 PASS.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add generate/__init__.py generate/facets.py tests/__init__.py tests/test_facets.py
+git commit -m "feat: typed facet model and controlled vocabularies"
+git push
+```
+
+---
+
+## Task 3: Catalog emitter (catalog.json + llms.txt + openapi.json)
+
+**Files:**
+- Create: `generate/catalog.py`
+- Create: `tests/test_catalog.py`
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/test_catalog.py`:
+
+```python
+import json
+from pathlib import Path
+from generate.facets import FixtureRecord, Health, Access, DocumentShape, Provenance, PaperSize, Spec
+from generate.catalog import emit_catalog, emit_llms_txt, emit_openapi
+
+
+def _sample_record():
+    return FixtureRecord(
+        id="clean-letter-1page",
+        size_bytes=1234,
+        sha256="a" * 64,
+        page_count=1,
+        description="Minimal clean Letter, one page.",
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        source_script="generate/builders/form_factor.py:clean_letter_1page",
+    )
+
+
+def test_catalog_json_has_required_top_level(tmp_path):
+    out = tmp_path / "catalog.json"
+    emit_catalog([_sample_record()], out)
+    data = json.loads(out.read_text())
+    assert data["schema_version"] == "1.0.0"
+    assert data["site"] == "pdfbin.net"
+    assert data["license_default"] == "CC0-1.0"
+    assert data["fixture_count"] == 1
+    assert "health" in data["facet_axes"]
+    assert data["fixtures"][0]["id"] == "clean-letter-1page"
+    assert data["fixtures"][0]["facets"]["health"] == "valid"
+
+
+def test_llms_txt_mentions_url_contract_and_categories(tmp_path):
+    out = tmp_path / "llms.txt"
+    emit_llms_txt([_sample_record()], out)
+    text = out.read_text()
+    assert "pdfbin.net" in text
+    assert "immutable" in text.lower()
+    assert "CC0" in text
+    assert "/catalog.json" in text
+
+
+def test_openapi_json_lists_fixture_paths(tmp_path):
+    out = tmp_path / "openapi.json"
+    emit_openapi([_sample_record()], out)
+    data = json.loads(out.read_text())
+    assert data["openapi"].startswith("3.")
+    assert "/clean-letter-1page.pdf" in data["paths"]
+    method = data["paths"]["/clean-letter-1page.pdf"]["get"]
+    assert "application/pdf" in method["responses"]["200"]["content"]
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_catalog.py -v`
+Expected: FAIL with import error.
+
+- [ ] **Step 3: Implement `generate/catalog.py`**
+
+```python
+"""Emit catalog.json, llms.txt, openapi.json from a list of FixtureRecord."""
+
+from __future__ import annotations
+
+import datetime as dt
+import json
+from pathlib import Path
+
+from generate.facets import FixtureRecord, facet_axes_vocabulary
+
+SCHEMA_VERSION = "1.0.0"
+BASE_URL = "https://pdfbin.net"
+
+
+def emit_catalog(records: list[FixtureRecord], path: Path) -> None:
+    doc = {
+        "schema_version": SCHEMA_VERSION,
+        "site": "pdfbin.net",
+        "license_default": "CC0-1.0",
+        "generated_at": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+        "fixture_count": len(records),
+        "facet_axes": facet_axes_vocabulary(),
+        "fixtures": [r.to_catalog_entry(BASE_URL) for r in records],
+    }
+    path.write_text(json.dumps(doc, indent=2, sort_keys=False))
+
+
+def emit_llms_txt(records: list[FixtureRecord], path: Path) -> None:
+    body = f"""# pdfbin.net
+
+A free CC0 library of PDF fixtures for testing. Each fixture is a PDF at a
+stable flat URL designed to exercise one or more specific behaviors -
+clean, corrupt in a known way, encrypted, large, PDF/A conformant,
+scanned, form-bearing, shaped like a real document (fax cover, invoice,
+IRS 1040, ...), or any combination.
+
+## URL contract
+
+Every fixture lives at https://pdfbin.net/<id>.pdf. Bytes are immutable;
+the URL is the version. If a fixture is wrong, a new ID ships and the old
+one stays available, marked status: deprecated in catalog.json.
+
+## Discovery
+
+- /catalog.json - typed catalog: every fixture's facets, sha256,
+  page_count, license, lifecycle (added/status/superseded_by)
+- /openapi.json - OpenAPI 3.1 spec with every fixture as a GET endpoint
+
+## Facet axes
+
+- health         valid / corrupt-{{xref-truncated, header-truncated, ...}}
+- access         open / encrypted-{{aes256-owner, aes128-user, ...}}
+- document_shape blank / fax-cover-sheet / invoice / receipt / irs-1040 /
+                 bank-statement / contract-nda / lab-report
+- provenance     digital-native / scanned-{{clean, noisy, skewed, ...}}
+- paper_size     DIN-A4 / US-Letter / JIS-B5 / mixed
+- spec           PDF-1.4 / PDF-1.7 / PDF-2.0 / PDF/A-1B ... PDF/A-4
+- features       acroform / signed / embedded-file
+
+## Conventions
+
+Encrypted PDFs use owner="ownerpass", user="userpass" unless an encrypted
+fixture's catalog entry says otherwise.
+
+Total fixtures: {len(records)}.
+
+## License
+
+All fixtures CC0-1.0. Site code MIT. Source: github.com/mintfax/pdfbin
+"""
+    path.write_text(body)
+
+
+def emit_openapi(records: list[FixtureRecord], path: Path) -> None:
+    paths: dict[str, dict] = {}
+    for r in records:
+        paths[f"/{r.id}.pdf"] = {
+            "get": {
+                "summary": r.description,
+                "tags": [
+                    f"health:{r.health.value}",
+                    f"document_shape:{r.document_shape.value}",
+                    f"provenance:{r.provenance.value}",
+                    f"spec:{r.spec.value}",
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PDF fixture (CC0)",
+                        "content": {
+                            "application/pdf": {
+                                "schema": {"type": "string", "format": "binary"}
+                            }
+                        },
+                    }
+                },
+            }
+        }
+    doc = {
+        "openapi": "3.1.0",
+        "info": {
+            "title": "pdfbin.net",
+            "version": "1.0.0",
+            "description": "Free CC0 PDF fixtures at stable flat URLs",
+            "license": {"name": "CC0-1.0", "identifier": "CC0-1.0"},
+        },
+        "servers": [{"url": BASE_URL}],
+        "paths": paths,
+    }
+    path.write_text(json.dumps(doc, indent=2, sort_keys=False))
+```
+
+- [ ] **Step 4: Run tests to verify pass**
+
+Run: `pytest tests/test_catalog.py -v`
+Expected: 3 PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add generate/catalog.py tests/test_catalog.py
+git commit -m "feat: catalog.json + llms.txt + openapi.json emitters"
+git push
+```
+
+---
+
+## Task 4: Pipeline entry point
+
+**Files:**
+- Create: `generate/pipeline.py`
+- Create: `generate/builders/__init__.py` (empty)
+- Create: `static/` (directory, will hold outputs)
+- Create: `tests/test_pipeline.py`
+
+- [ ] **Step 1: Create empty package init and static dir**
+
+```bash
+mkdir -p generate/builders static
+touch generate/builders/__init__.py static/.gitkeep
+```
+
+- [ ] **Step 2: Write the failing test**
+
+`tests/test_pipeline.py`:
+
+```python
+import json
+from pathlib import Path
+
+from generate.pipeline import run_pipeline
+
+
+def test_run_pipeline_emits_three_surfaces(tmp_path, monkeypatch):
+    # Stub: no builders enabled; pipeline should still emit empty catalog/llms/openapi.
+    monkeypatch.setattr("generate.pipeline.BUILDER_MODULES", [])
+    static_dir = tmp_path / "static"
+    static_dir.mkdir()
+    run_pipeline(static_dir=static_dir)
+    catalog = json.loads((static_dir / "catalog.json").read_text())
+    assert catalog["fixture_count"] == 0
+    assert (static_dir / "llms.txt").exists()
+    assert (static_dir / "openapi.json").exists()
+```
+
+- [ ] **Step 3: Run test to verify it fails**
+
+Run: `pytest tests/test_pipeline.py -v`
+Expected: FAIL with import error.
+
+- [ ] **Step 4: Implement `generate/pipeline.py`**
+
+```python
+"""Single entry point. Runs every builder, validates records, emits surfaces.
+
+Usage:
+    python -m generate.pipeline                     # default: writes to ./static
+    python -m generate.pipeline --static-dir /tmp/x # custom output dir
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from generate.facets import FixtureRecord
+from generate.catalog import emit_catalog, emit_llms_txt, emit_openapi
+
+# Builder modules in stable execution order. Each module exposes
+# `build_all(static_dir: Path) -> list[FixtureRecord]`.
+# Filled in as builder tasks land.
+BUILDER_MODULES: list[str] = []
+
+
+def run_pipeline(static_dir: Path) -> list[FixtureRecord]:
+    static_dir.mkdir(parents=True, exist_ok=True)
+    records: list[FixtureRecord] = []
+    for module_path in BUILDER_MODULES:
+        module = __import__(module_path, fromlist=["build_all"])
+        for record in module.build_all(static_dir):
+            # pydantic already validated during construction; re-affirm type.
+            assert isinstance(record, FixtureRecord)
+            records.append(record)
+    records.sort(key=lambda r: r.id)
+    emit_catalog(records, static_dir / "catalog.json")
+    emit_llms_txt(records, static_dir / "llms.txt")
+    emit_openapi(records, static_dir / "openapi.json")
+    return records
+
+
+def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("--static-dir", type=Path, default=Path("static"))
+    args = p.parse_args()
+    records = run_pipeline(args.static_dir)
+    print(f"emitted {len(records)} fixtures + catalog/llms/openapi to {args.static_dir}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+- [ ] **Step 5: Run tests to verify pass**
+
+Run: `pytest tests/test_pipeline.py -v`
+Expected: 1 PASS.
+
+- [ ] **Step 6: Smoke-run the pipeline against ./static**
+
+Run: `python -m generate.pipeline`
+Expected: writes `static/catalog.json`, `static/llms.txt`, `static/openapi.json`. fixture_count is 0 (no builders registered yet).
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add generate/pipeline.py generate/builders/__init__.py static/.gitkeep tests/test_pipeline.py static/catalog.json static/llms.txt static/openapi.json
+git commit -m "feat: pipeline entry point + empty discovery surfaces"
+git push
+```
+
+---
+
+## Task 5: form_factor builder (clean PDFs, the foundational set)
+
+**Files:**
+- Create: `generate/builders/form_factor.py`
+- Create: `tests/test_builders_form_factor.py`
+- Modify: `generate/pipeline.py` (register builder)
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/test_builders_form_factor.py`:
+
+```python
+from pathlib import Path
+import pypdf
+from generate.builders import form_factor
+from generate.facets import PaperSize
+
+
+def test_builds_nine_clean_form_factor_fixtures(tmp_path):
+    records = form_factor.build_all(tmp_path)
+    ids = {r.id for r in records}
+    expected = {
+        "clean-a4-1page",
+        "clean-letter-1page",
+        "clean-jis-b5-1page",
+        "clean-a4-3page",
+        "clean-letter-3page",
+        "clean-100-pages",
+        "clean-500-pages",
+        "clean-mixed-orientation",
+        "clean-paper-sizes-mixed",
+    }
+    assert ids == expected
+    for r in records:
+        path = tmp_path / f"{r.id}.pdf"
+        assert path.exists()
+        reader = pypdf.PdfReader(str(path))
+        assert len(reader.pages) == r.page_count
+
+
+def test_jis_b5_dimensions(tmp_path):
+    records = form_factor.build_all(tmp_path)
+    jis = next(r for r in records if r.id == "clean-jis-b5-1page")
+    assert jis.paper_size == PaperSize.JIS_B5
+    reader = pypdf.PdfReader(str(tmp_path / "clean-jis-b5-1page.pdf"))
+    box = reader.pages[0].mediabox
+    # JIS B5 is 182x257mm = 515.91 x 728.5 pts. Tolerance for rounding.
+    assert abs(float(box.width) - 515.91) < 2
+    assert abs(float(box.height) - 728.5) < 2
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_form_factor.py -v`
+Expected: FAIL with import error.
+
+- [ ] **Step 3: Implement `generate/builders/form_factor.py`**
+
+```python
+"""Build clean PDFs varying paper size, page count, and orientation.
+
+Foundational builder - many other builders use the canonical clean Letter
+or A4 base produced here via the internal `_make_clean()` helper.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from pathlib import Path
+
+from reportlab.lib.pagesizes import A4, LETTER, landscape
+from reportlab.pdfgen import canvas
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec
+)
+
+JIS_B5_MM = (182, 257)
+JIS_B5_PTS = (JIS_B5_MM[0] * 72 / 25.4, JIS_B5_MM[1] * 72 / 25.4)
+
+
+def _draw_page(c: canvas.Canvas, w: float, h: float, page_no: int, label: str) -> None:
+    c.setFont("Helvetica", 18)
+    c.drawString(72, h - 100, f"pdfbin.net fixture - {label}")
+    c.setFont("Helvetica", 12)
+    c.drawString(72, h - 130, f"Page {page_no}")
+    c.drawString(72, h - 150, "CC0-1.0. Bytes immutable. See /catalog.json.")
+    c.showPage()
+
+
+def _write_pdf(path: Path, pages: list[tuple[float, float, str]], label: str) -> None:
+    """`pages` is a list of (width, height, orientation_hint) tuples."""
+    c = canvas.Canvas(str(path), pageCompression=1)
+    c.setTitle(f"pdfbin.net fixture: {label}")
+    c.setAuthor("pdfbin.net")
+    c.setSubject("CC0 test fixture")
+    for i, (w, h, _) in enumerate(pages, start=1):
+        c.setPageSize((w, h))
+        _draw_page(c, w, h, i, label)
+    c.save()
+
+
+def _hash(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _record(path: Path, id_: str, page_count: int, paper_size: PaperSize,
+            orientation: str, description: str) -> FixtureRecord:
+    return FixtureRecord(
+        id=id_,
+        size_bytes=path.stat().st_size,
+        sha256=_hash(path),
+        page_count=page_count,
+        description=description,
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=paper_size,
+        orientation=orientation,
+        spec=Spec.PDF_1_7,
+        features=set(),
+        source_script=f"generate/builders/form_factor.py:{id_.replace('-', '_')}",
+    )
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    records: list[FixtureRecord] = []
+
+    # Single-page baselines per paper-size family.
+    for id_, size, paper, desc in [
+        ("clean-a4-1page", A4, PaperSize.DIN_A4,
+         "Clean DIN A4 (210x297mm), single portrait page, body text."),
+        ("clean-letter-1page", LETTER, PaperSize.US_LETTER,
+         "Clean US Letter (8.5x11in), single portrait page, body text."),
+        ("clean-jis-b5-1page", JIS_B5_PTS, PaperSize.JIS_B5,
+         "Clean JIS B5 (182x257mm) - not ISO B5. Single portrait page."),
+    ]:
+        path = static_dir / f"{id_}.pdf"
+        _write_pdf(path, [(size[0], size[1], "portrait")], id_)
+        records.append(_record(path, id_, 1, paper, "portrait", desc))
+
+    # 3-page DIN A4 and US Letter.
+    for id_, size, paper, desc in [
+        ("clean-a4-3page", A4, PaperSize.DIN_A4, "Clean DIN A4, three portrait pages."),
+        ("clean-letter-3page", LETTER, PaperSize.US_LETTER, "Clean US Letter, three portrait pages."),
+    ]:
+        path = static_dir / f"{id_}.pdf"
+        _write_pdf(path, [(size[0], size[1], "portrait")] * 3, id_)
+        records.append(_record(path, id_, 3, paper, "portrait", desc))
+
+    # 100- and 500-page US Letter.
+    for id_, count, desc in [
+        ("clean-100-pages", 100, "Clean US Letter, 100 portrait pages."),
+        ("clean-500-pages", 500, "Clean US Letter, 500 portrait pages."),
+    ]:
+        path = static_dir / f"{id_}.pdf"
+        _write_pdf(path, [(LETTER[0], LETTER[1], "portrait")] * count, id_)
+        records.append(_record(path, id_, count, PaperSize.US_LETTER, "portrait", desc))
+
+    # Mixed orientation (5 pages alternating).
+    path = static_dir / "clean-mixed-orientation.pdf"
+    pages = []
+    for i in range(5):
+        if i % 2 == 0:
+            pages.append((LETTER[0], LETTER[1], "portrait"))
+        else:
+            pages.append((LETTER[1], LETTER[0], "landscape"))
+    _write_pdf(path, pages, "clean-mixed-orientation")
+    records.append(_record(path, "clean-mixed-orientation", 5,
+                           PaperSize.US_LETTER, "mixed",
+                           "US Letter, alternating portrait and landscape across 5 pages."))
+
+    # Mixed paper sizes (a4 + letter + jis-b5).
+    path = static_dir / "clean-paper-sizes-mixed.pdf"
+    pages = [
+        (A4[0], A4[1], "portrait"),
+        (LETTER[0], LETTER[1], "portrait"),
+        (JIS_B5_PTS[0], JIS_B5_PTS[1], "portrait"),
+    ]
+    _write_pdf(path, pages, "clean-paper-sizes-mixed")
+    records.append(_record(path, "clean-paper-sizes-mixed", 3,
+                           PaperSize.MIXED, "portrait",
+                           "Mixed paper sizes: A4, US Letter, and JIS B5 in one document."))
+
+    return records
+```
+
+- [ ] **Step 4: Register builder in pipeline**
+
+Edit `generate/pipeline.py`, find `BUILDER_MODULES: list[str] = []` and replace with:
+
+```python
+BUILDER_MODULES: list[str] = [
+    "generate.builders.form_factor",
+]
+```
+
+- [ ] **Step 5: Run tests**
+
+Run: `pytest tests/test_builders_form_factor.py tests/test_pipeline.py -v`
+Expected: PASS.
+
+- [ ] **Step 6: Regenerate fixtures and commit**
+
+```bash
+python -m generate.pipeline
+git add generate/builders/form_factor.py tests/test_builders_form_factor.py generate/pipeline.py static/
+git commit -m "feat(builders): form_factor - 9 clean fixtures across paper sizes and page counts"
+git push
+```
+
+---
+
+## Task 6: size builder (byte-size variants)
+
+**Files:**
+- Create: `generate/builders/size.py`
+- Create: `tests/test_builders_size.py`
+- Modify: `generate/pipeline.py`
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/test_builders_size.py`:
+
+```python
+from generate.builders import size
+
+
+def test_builds_four_size_fixtures(tmp_path):
+    records = size.build_all(tmp_path)
+    expected_ids = {"clean-1mb", "clean-10mb", "clean-25mb", "clean-50mb"}
+    assert {r.id for r in records} == expected_ids
+
+
+def test_each_size_fixture_is_at_least_target_minus_10pct(tmp_path):
+    records = size.build_all(tmp_path)
+    targets = {"clean-1mb": 1_000_000, "clean-10mb": 10_000_000,
+               "clean-25mb": 25_000_000, "clean-50mb": 50_000_000}
+    for r in records:
+        target = targets[r.id]
+        assert r.size_bytes >= target * 0.9, f"{r.id} ({r.size_bytes}) below target {target}"
+        assert r.size_bytes <= target * 1.5, f"{r.id} ({r.size_bytes}) above 1.5x target {target}"
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_size.py -v`
+Expected: FAIL (module doesn't exist).
+
+- [ ] **Step 3: Implement `generate/builders/size.py`**
+
+```python
+"""Byte-size-targeted clean PDFs. GH Pages caps at 100MB per file; we cap at 50MB."""
+
+from __future__ import annotations
+
+import hashlib
+import io
+from pathlib import Path
+
+from PIL import Image
+from reportlab.lib.pagesizes import LETTER
+from reportlab.pdfgen import canvas
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec,
+)
+
+TARGETS_MB = [1, 10, 25, 50]
+
+
+def _filler_image_bytes(target_bytes: int) -> bytes:
+    """Generate a JPEG of approximately target_bytes by tuning dimensions."""
+    # Empirical: ~1.5 bytes per pixel for high-quality JPEG random-noise photos.
+    px_total = max(int(target_bytes / 1.5), 1024)
+    side = int(px_total ** 0.5)
+    import random
+    img = Image.new("RGB", (side, side))
+    img.putdata([(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                 for _ in range(side * side)])
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=95)
+    return buf.getvalue()
+
+
+def _write_padded_pdf(path: Path, target_bytes: int, id_: str) -> None:
+    c = canvas.Canvas(str(path), pageCompression=0)  # don't recompress the image
+    c.setTitle(f"pdfbin.net fixture: {id_}")
+    c.setAuthor("pdfbin.net")
+    c.setSubject("CC0 test fixture (size-targeted)")
+    c.setFont("Helvetica", 18)
+    c.drawString(72, LETTER[1] - 100, f"pdfbin.net fixture - {id_}")
+    c.drawString(72, LETTER[1] - 130, "Size-targeted padding via embedded JPEG.")
+
+    image_data = _filler_image_bytes(target_bytes - 50_000)  # 50KB chrome overhead estimate
+    image = canvas.ImageReader(io.BytesIO(image_data))
+    c.drawImage(image, 72, 72, width=LETTER[0] - 144, height=400, preserveAspectRatio=True)
+    c.showPage()
+    c.save()
+
+
+def _hash(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    records: list[FixtureRecord] = []
+    for mb in TARGETS_MB:
+        id_ = f"clean-{mb}mb"
+        path = static_dir / f"{id_}.pdf"
+        _write_padded_pdf(path, mb * 1_000_000, id_)
+        records.append(FixtureRecord(
+            id=id_,
+            size_bytes=path.stat().st_size,
+            sha256=_hash(path),
+            page_count=1,
+            description=f"Clean US Letter PDF padded to approximately {mb} MB via an embedded JPEG.",
+            health=Health.VALID,
+            access=Access.OPEN,
+            document_shape=DocumentShape.BLANK,
+            provenance=Provenance.DIGITAL_NATIVE,
+            paper_size=PaperSize.US_LETTER,
+            orientation="portrait",
+            spec=Spec.PDF_1_7,
+            features=set(),
+            source_script=f"generate/builders/size.py:clean_{mb}mb",
+        ))
+    return records
+```
+
+- [ ] **Step 4: Register builder in pipeline**
+
+In `generate/pipeline.py`, append `"generate.builders.size"` to `BUILDER_MODULES`:
+
+```python
+BUILDER_MODULES: list[str] = [
+    "generate.builders.form_factor",
+    "generate.builders.size",
+]
+```
+
+- [ ] **Step 5: Run tests**
+
+Run: `pytest tests/test_builders_size.py -v`
+Expected: PASS. (Note: this test creates ~86MB of test output - tmp_path; cleans up automatically.)
+
+- [ ] **Step 6: Regenerate fixtures and commit**
+
+```bash
+python -m generate.pipeline
+git add generate/builders/size.py tests/test_builders_size.py generate/pipeline.py static/
+git commit -m "feat(builders): size - 1MB/10MB/25MB/50MB clean variants"
+git push
+```
+
+---
+
+## Task 7: health builder (corrupt PDFs)
+
+**Files:**
+- Create: `generate/builders/health.py`
+- Create: `tests/test_builders_health.py`
+- Modify: `generate/pipeline.py`
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/test_builders_health.py`:
+
+```python
+import pytest
+import pypdf
+from generate.builders import health
+
+
+def test_builds_seven_health_fixtures(tmp_path):
+    records = health.build_all(tmp_path)
+    expected = {
+        "xref-truncated", "header-truncated", "stream-length-mismatch",
+        "object-generation-mismatch", "trailer-missing", "eof-missing",
+        "byte-flipped-mid-stream",
+    }
+    assert {r.id for r in records} == expected
+
+
+def test_header_truncated_lacks_pdf_marker(tmp_path):
+    health.build_all(tmp_path)
+    data = (tmp_path / "header-truncated.pdf").read_bytes()
+    assert not data.startswith(b"%PDF-")
+
+
+def test_eof_missing_lacks_eof_marker(tmp_path):
+    health.build_all(tmp_path)
+    data = (tmp_path / "eof-missing.pdf").read_bytes()
+    assert b"%%EOF" not in data
+
+
+def test_xref_truncated_loads_with_recovery(tmp_path):
+    """pypdf with strict=False can recover via scan; strict=True should fail."""
+    health.build_all(tmp_path)
+    path = tmp_path / "xref-truncated.pdf"
+    # strict=False recovery may or may not succeed depending on truncation point;
+    # the important assertion is that the file IS truncated.
+    raw = path.read_bytes()
+    assert b"startxref" not in raw or raw.find(b"startxref") > len(raw) - 200
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_health.py -v`
+Expected: FAIL (module doesn't exist).
+
+- [ ] **Step 3: Implement `generate/builders/health.py`**
+
+```python
+"""Build deterministically-damaged PDFs. Each function applies one specific,
+named damage to an in-memory clean base PDF. The byte offset(s) modified are
+documented in each function and surfaced via the fixture's description.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import io
+from pathlib import Path
+
+from reportlab.lib.pagesizes import LETTER
+from reportlab.pdfgen import canvas
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec,
+)
+
+
+def _clean_base() -> bytes:
+    """A small, deterministic clean PDF used as the corruption substrate."""
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pageCompression=1)
+    c.setTitle("pdfbin.net fixture base (clean)")
+    c.setFont("Helvetica", 14)
+    c.drawString(72, LETTER[1] - 100, "pdfbin.net base PDF (clean substrate)")
+    c.drawString(72, LETTER[1] - 130, "Used by health.py to derive corrupt variants.")
+    c.showPage()
+    c.save()
+    return buf.getvalue()
+
+
+def _hash(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+
+def _record(id_: str, data: bytes, page_count: int, health_value: Health,
+            description: str) -> FixtureRecord:
+    return FixtureRecord(
+        id=id_,
+        size_bytes=len(data),
+        sha256=_hash(data),
+        page_count=page_count,
+        description=description,
+        health=health_value,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        source_script=f"generate/builders/health.py:{id_.replace('-', '_')}",
+    )
+
+
+def _xref_truncated(base: bytes) -> bytes:
+    """Truncate the file at the position of the xref table header."""
+    idx = base.rfind(b"xref")
+    if idx < 0:
+        raise RuntimeError("base PDF has no xref")
+    return base[:idx]
+
+
+def _header_truncated(base: bytes) -> bytes:
+    """Remove the %PDF-1.x line (8 bytes typical)."""
+    nl = base.index(b"\n") + 1
+    return base[nl:]
+
+
+def _stream_length_mismatch(base: bytes) -> bytes:
+    """Find the first /Length N stream and rewrite N to N+99 (oversized)."""
+    import re
+    pattern = re.compile(rb"/Length\s+(\d+)")
+    m = pattern.search(base)
+    if not m:
+        raise RuntimeError("no /Length found in base")
+    original = m.group(0)
+    new_len = int(m.group(1)) + 99
+    replacement = f"/Length {new_len}".encode()
+    return base.replace(original, replacement, 1)
+
+
+def _object_generation_mismatch(base: bytes) -> bytes:
+    """Rewrite the first `N 0 obj` to `N 1 obj`. xref still says gen 0."""
+    import re
+    m = re.search(rb"(\d+) 0 obj", base)
+    if not m:
+        raise RuntimeError("no '0 obj' found")
+    return base.replace(m.group(0), m.group(0).replace(b" 0 obj", b" 1 obj"), 1)
+
+
+def _trailer_missing(base: bytes) -> bytes:
+    """Remove the trailer dict (from 'trailer' to 'startxref')."""
+    t = base.rfind(b"trailer")
+    sx = base.rfind(b"startxref")
+    if t < 0 or sx < 0:
+        raise RuntimeError("trailer/startxref missing in base")
+    return base[:t] + base[sx:]
+
+
+def _eof_missing(base: bytes) -> bytes:
+    """Strip the %%EOF marker."""
+    return base.replace(b"%%EOF", b"", 1)
+
+
+def _byte_flipped_mid_stream(base: bytes) -> bytes:
+    """Flip a byte ~midway through a content stream."""
+    idx = base.find(b"stream\n")
+    if idx < 0:
+        raise RuntimeError("no stream found")
+    flip_at = idx + 100
+    if flip_at >= len(base):
+        flip_at = idx + 20
+    out = bytearray(base)
+    out[flip_at] ^= 0xFF
+    return bytes(out)
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    base = _clean_base()
+    fixtures = [
+        ("xref-truncated", _xref_truncated, Health.CORRUPT_XREF_TRUNCATED,
+         "PDF byte-truncated at the start of the xref table. Parsers without xref-recovery will fail."),
+        ("header-truncated", _header_truncated, Health.CORRUPT_HEADER_TRUNCATED,
+         "First line (%PDF-1.7) removed. Parsers that key on the header fail to detect a PDF."),
+        ("stream-length-mismatch", _stream_length_mismatch, Health.CORRUPT_STREAM_LENGTH_MISMATCH,
+         "One stream object's /Length is overstated by 99 bytes."),
+        ("object-generation-mismatch", _object_generation_mismatch, Health.CORRUPT_OBJECT_GENERATION_MISMATCH,
+         "First object's header says generation 1; xref says generation 0."),
+        ("trailer-missing", _trailer_missing, Health.CORRUPT_TRAILER_MISSING,
+         "Trailer dictionary removed; startxref present but points to nothing useful."),
+        ("eof-missing", _eof_missing, Health.CORRUPT_EOF_MISSING,
+         "%%EOF marker stripped. Parsers that key on it cannot find the end."),
+        ("byte-flipped-mid-stream", _byte_flipped_mid_stream, Health.CORRUPT_BYTE_FLIPPED,
+         "One byte XOR-flipped mid-content-stream. Likely renders pages with garbage."),
+    ]
+    records: list[FixtureRecord] = []
+    for id_, mutator, health_value, desc in fixtures:
+        data = mutator(base)
+        path = static_dir / f"{id_}.pdf"
+        path.write_bytes(data)
+        records.append(_record(id_, data, 1, health_value, desc))
+    return records
+```
+
+- [ ] **Step 4: Register builder**
+
+Append `"generate.builders.health"` to `BUILDER_MODULES`.
+
+- [ ] **Step 5: Run tests**
+
+Run: `pytest tests/test_builders_health.py -v`
+Expected: PASS.
+
+- [ ] **Step 6: Regenerate and commit**
+
+```bash
+python -m generate.pipeline
+git add generate/builders/health.py tests/test_builders_health.py generate/pipeline.py static/
+git commit -m "feat(builders): health - 7 corrupt PDF variants"
+git push
+```
+
+---
+
+## Task 8: access builder (encrypted PDFs)
+
+**Files:**
+- Create: `generate/builders/access.py`
+- Create: `tests/test_builders_access.py`
+- Modify: `generate/pipeline.py`
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/test_builders_access.py`:
+
+```python
+import pikepdf
+import pytest
+from generate.builders import access
+
+
+def test_builds_seven_encrypted_variants(tmp_path):
+    records = access.build_all(tmp_path)
+    expected = {
+        "aes256-owner", "aes256-user", "aes256-both",
+        "aes128-owner", "aes128-user",
+        "rc4-128-owner", "rc4-40-owner",
+    }
+    assert {r.id for r in records} == expected
+
+
+def test_aes256_owner_opens_with_owner_password(tmp_path):
+    access.build_all(tmp_path)
+    pdf = pikepdf.open(str(tmp_path / "aes256-owner.pdf"), password="ownerpass")
+    assert len(pdf.pages) >= 1
+    pdf.close()
+
+
+def test_aes256_user_opens_with_user_password(tmp_path):
+    access.build_all(tmp_path)
+    pdf = pikepdf.open(str(tmp_path / "aes256-user.pdf"), password="userpass")
+    assert len(pdf.pages) >= 1
+    pdf.close()
+
+
+def test_aes256_user_rejects_wrong_password(tmp_path):
+    access.build_all(tmp_path)
+    with pytest.raises(pikepdf.PasswordError):
+        pikepdf.open(str(tmp_path / "aes256-user.pdf"), password="wrong")
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_access.py -v`
+Expected: FAIL (module doesn't exist).
+
+- [ ] **Step 3: Implement `generate/builders/access.py`**
+
+```python
+"""Build encrypted PDFs varying algorithm and password roles.
+
+Canonical passwords across the catalog: owner="ownerpass", user="userpass".
+"""
+
+from __future__ import annotations
+
+import hashlib
+import io
+from pathlib import Path
+
+import pikepdf
+from reportlab.lib.pagesizes import LETTER
+from reportlab.pdfgen import canvas
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec,
+)
+
+OWNER = "ownerpass"
+USER = "userpass"
+
+
+def _clean_base_bytes() -> bytes:
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pageCompression=1)
+    c.setFont("Helvetica", 14)
+    c.drawString(72, LETTER[1] - 100, "pdfbin.net encrypted fixture base")
+    c.drawString(72, LETTER[1] - 130, "Passwords: owner=ownerpass, user=userpass.")
+    c.showPage()
+    c.save()
+    return buf.getvalue()
+
+
+def _hash(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+
+def _encrypt(base: bytes, *, owner: str | None, user: str | None,
+             encryption: pikepdf.Encryption) -> bytes:
+    src = pikepdf.open(io.BytesIO(base))
+    buf = io.BytesIO()
+    src.save(buf, encryption=encryption)
+    src.close()
+    return buf.getvalue()
+
+
+def _record(id_: str, data: bytes, access_value: Access, owner: str | None,
+            user: str | None, description: str) -> FixtureRecord:
+    return FixtureRecord(
+        id=id_,
+        size_bytes=len(data),
+        sha256=_hash(data),
+        page_count=1,
+        description=description,
+        health=Health.VALID,
+        access=access_value,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        passwords={"owner": owner, "user": user},
+        source_script=f"generate/builders/access.py:{id_.replace('-', '_')}",
+    )
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    base = _clean_base_bytes()
+    out: list[FixtureRecord] = []
+
+    variants = [
+        ("aes256-owner", Access.ENCRYPTED_AES256_OWNER,
+         pikepdf.Encryption(owner=OWNER, user="", R=6),
+         OWNER, None, "AES-256 with owner password only. Open password is empty."),
+        ("aes256-user", Access.ENCRYPTED_AES256_USER,
+         pikepdf.Encryption(owner=OWNER, user=USER, R=6),
+         OWNER, USER, "AES-256 with user (open) password. Owner password also set."),
+        ("aes256-both", Access.ENCRYPTED_AES256_BOTH,
+         pikepdf.Encryption(owner=OWNER, user=USER, R=6),
+         OWNER, USER, "AES-256 with both owner and user passwords set distinctly."),
+        ("aes128-owner", Access.ENCRYPTED_AES128_OWNER,
+         pikepdf.Encryption(owner=OWNER, user="", R=4),
+         OWNER, None, "AES-128 (revision 4) with owner password only."),
+        ("aes128-user", Access.ENCRYPTED_AES128_USER,
+         pikepdf.Encryption(owner=OWNER, user=USER, R=4),
+         OWNER, USER, "AES-128 (revision 4) with user password."),
+        ("rc4-128-owner", Access.ENCRYPTED_RC4_128_OWNER,
+         pikepdf.Encryption(owner=OWNER, user="", R=3),
+         OWNER, None, "Legacy RC4-128 (revision 3) with owner password only."),
+        ("rc4-40-owner", Access.ENCRYPTED_RC4_40_OWNER,
+         pikepdf.Encryption(owner=OWNER, user="", R=2),
+         OWNER, None, "Legacy RC4-40 (revision 2) - common in older documents."),
+    ]
+    for id_, access_value, encryption, owner, user, desc in variants:
+        data = _encrypt(base, owner=owner, user=user, encryption=encryption)
+        path = static_dir / f"{id_}.pdf"
+        path.write_bytes(data)
+        out.append(_record(id_, data, access_value, owner, user, desc))
+    return out
+```
+
+- [ ] **Step 4: Register builder**
+
+Append `"generate.builders.access"` to `BUILDER_MODULES`.
+
+- [ ] **Step 5: Run tests**
+
+Run: `pytest tests/test_builders_access.py -v`
+Expected: PASS.
+
+- [ ] **Step 6: Regenerate and commit**
+
+```bash
+python -m generate.pipeline
+git add generate/builders/access.py tests/test_builders_access.py generate/pipeline.py static/
+git commit -m "feat(builders): access - 7 encryption variants (AES-256/128, RC4-128/40)"
+git push
+```
+
+---
+
+## Task 9: spec builder (PDF version + PDF/A)
+
+**Files:**
+- Create: `generate/builders/spec.py`
+- Create: `tests/test_builders_spec.py`
+- Modify: `generate/pipeline.py`
+
+- [ ] **Step 1: Verify Ghostscript is available locally**
+
+Run: `gs --version`
+Expected: prints a version (e.g., `10.03.0`). If not installed: `sudo apt-get install ghostscript` (Debian/Ubuntu).
+
+- [ ] **Step 2: Write the failing test**
+
+`tests/test_builders_spec.py`:
+
+```python
+import shutil
+import pytest
+import pypdf
+from generate.builders import spec
+
+gs_missing = pytest.mark.skipif(shutil.which("gs") is None, reason="ghostscript not installed")
+
+
+def test_builds_eight_spec_fixtures(tmp_path):
+    records = spec.build_all(tmp_path)
+    expected = {
+        "pdf-1.4-clean", "pdf-1.7-clean", "pdf-2.0-clean",
+        "pdfa-1b-compliant", "pdfa-1a-compliant",
+        "pdfa-2b-compliant", "pdfa-3b-with-attachment",
+        "pdfa-4-compliant",
+    }
+    assert {r.id for r in records} == expected
+
+
+@gs_missing
+def test_pdfa_3b_carries_attachment(tmp_path):
+    spec.build_all(tmp_path)
+    reader = pypdf.PdfReader(str(tmp_path / "pdfa-3b-with-attachment.pdf"))
+    # Embedded files live in the document catalog.
+    catalog = reader.trailer["/Root"]
+    assert "/Names" in catalog or "/AF" in catalog
+```
+
+- [ ] **Step 3: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_spec.py -v`
+Expected: FAIL.
+
+- [ ] **Step 4: Implement `generate/builders/spec.py`**
+
+```python
+"""PDF version variants (1.4 / 1.7 / 2.0) and PDF/A conformance variants.
+
+PDF version variants are produced by pikepdf save options. PDF/A variants are
+produced via Ghostscript shell-out in strict-compliance mode (`-dPDFA
+-dPDFACompatibilityPolicy=1` - abort on non-conformance rather than degrade).
+"""
+
+from __future__ import annotations
+
+import hashlib
+import io
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+
+import pikepdf
+from reportlab.lib.pagesizes import LETTER
+from reportlab.pdfgen import canvas
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec, Feature,
+)
+
+
+def _clean_base(spec_label: str) -> bytes:
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pageCompression=1)
+    c.setFont("Helvetica", 14)
+    c.drawString(72, LETTER[1] - 100, f"pdfbin.net fixture - {spec_label}")
+    c.showPage()
+    c.save()
+    return buf.getvalue()
+
+
+def _hash(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+
+def _save_at_version(base: bytes, version: str) -> bytes:
+    """Re-save a clean PDF targeting a specific PDF version."""
+    pdf = pikepdf.open(io.BytesIO(base))
+    buf = io.BytesIO()
+    pdf.save(buf, min_version=version, force_version=version)
+    pdf.close()
+    return buf.getvalue()
+
+
+def _convert_pdfa(base: bytes, conformance: str) -> bytes:
+    """Convert a PDF to a PDF/A using Ghostscript in strict mode.
+
+    `conformance` is one of: 1, 2, 3, 4. PDF/A levels A/B/U handled via gs args.
+    The script writes `base` to a tempfile, invokes gs, returns the converted bytes.
+    """
+    if shutil.which("gs") is None:
+        raise RuntimeError("Ghostscript not installed; required for PDF/A builders.")
+    with tempfile.TemporaryDirectory() as tmp:
+        src = Path(tmp) / "src.pdf"
+        dst = Path(tmp) / "dst.pdf"
+        src.write_bytes(base)
+        cmd = [
+            "gs",
+            "-dPDFA=" + conformance,
+            "-dPDFACompatibilityPolicy=1",
+            "-dBATCH", "-dNOPAUSE", "-dQUIET",
+            "-sDEVICE=pdfwrite",
+            "-sColorConversionStrategy=UseDeviceIndependentColor",
+            f"-sOutputFile={dst}",
+            str(src),
+        ]
+        subprocess.run(cmd, check=True)
+        return dst.read_bytes()
+
+
+def _attach_file_to_pdf(pdf_bytes: bytes, attachment_name: str,
+                       attachment_bytes: bytes) -> bytes:
+    pdf = pikepdf.open(io.BytesIO(pdf_bytes))
+    filespec = pikepdf.AttachedFileSpec(pdf, attachment_bytes, mime_type="text/plain")
+    pdf.attachments[attachment_name] = filespec
+    buf = io.BytesIO()
+    pdf.save(buf)
+    pdf.close()
+    return buf.getvalue()
+
+
+def _record(id_: str, data: bytes, spec_value: Spec, description: str,
+            features: set[Feature] | None = None) -> FixtureRecord:
+    return FixtureRecord(
+        id=id_,
+        size_bytes=len(data),
+        sha256=_hash(data),
+        page_count=1,
+        description=description,
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=spec_value,
+        features=features or set(),
+        source_script=f"generate/builders/spec.py:{id_.replace('-', '_').replace('.', '_')}",
+    )
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    records: list[FixtureRecord] = []
+
+    for id_, version, spec_value, desc in [
+        ("pdf-1.4-clean", "1.4", Spec.PDF_1_4, "Clean PDF saved targeting spec version 1.4."),
+        ("pdf-1.7-clean", "1.7", Spec.PDF_1_7, "Clean PDF saved targeting spec version 1.7."),
+        ("pdf-2.0-clean", "2.0", Spec.PDF_2_0, "Clean PDF saved targeting spec version 2.0."),
+    ]:
+        base = _clean_base(id_)
+        data = _save_at_version(base, version)
+        path = static_dir / f"{id_}.pdf"
+        path.write_bytes(data)
+        records.append(_record(id_, data, spec_value, desc))
+
+    base = _clean_base("pdfa-base")
+    for id_, gs_level, spec_value, desc in [
+        ("pdfa-1b-compliant", "1", Spec.PDFA_1B,
+         "PDF/A-1B compliant document (visual appearance preserved)."),
+        ("pdfa-1a-compliant", "1", Spec.PDFA_1A,
+         "PDF/A-1A compliant document (accessible / tagged variant of -1B)."),
+        ("pdfa-2b-compliant", "2", Spec.PDFA_2B,
+         "PDF/A-2B compliant document (PDF 1.7 features allowed)."),
+        ("pdfa-4-compliant", "4", Spec.PDFA_4,
+         "PDF/A-4 compliant document (PDF 2.0 baseline)."),
+    ]:
+        data = _convert_pdfa(base, gs_level)
+        path = static_dir / f"{id_}.pdf"
+        path.write_bytes(data)
+        records.append(_record(id_, data, spec_value, desc))
+
+    # PDF/A-3 with an attachment.
+    id_ = "pdfa-3b-with-attachment"
+    pdfa3 = _convert_pdfa(base, "3")
+    attached = _attach_file_to_pdf(pdfa3, "note.txt", b"pdfbin.net PDF/A-3 attachment sample.\n")
+    path = static_dir / f"{id_}.pdf"
+    path.write_bytes(attached)
+    records.append(_record(
+        id_, attached, Spec.PDFA_3B,
+        "PDF/A-3B with an embedded plain-text attachment - the headline PDF/A-3 feature.",
+        features={Feature.EMBEDDED_FILE},
+    ))
+
+    return records
+```
+
+- [ ] **Step 5: Register builder**
+
+Append `"generate.builders.spec"` to `BUILDER_MODULES`.
+
+- [ ] **Step 6: Run tests**
+
+Run: `pytest tests/test_builders_spec.py -v`
+Expected: PASS (skipping the gs-dependent test if gs is missing - but you should have it installed).
+
+- [ ] **Step 7: Regenerate and commit**
+
+```bash
+python -m generate.pipeline
+git add generate/builders/spec.py tests/test_builders_spec.py generate/pipeline.py static/
+git commit -m "feat(builders): spec - PDF 1.4/1.7/2.0 + PDF/A 1B/1A/2B/3B/4 (Ghostscript strict mode)"
+git push
+```
+
+---
+
+## Task 10: features builder (AcroForm states)
+
+**Files:**
+- Create: `generate/builders/features.py`
+- Create: `tests/test_builders_features.py`
+- Modify: `generate/pipeline.py`
+
+Note: the `acroform-signed` fixture uses a self-signed certificate generated on the fly with pikepdf. It is signed but not by a trusted CA; consumers verifying chain-of-trust should expect that to fail (which is itself useful for testing).
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/test_builders_features.py`:
+
+```python
+import pypdf
+from generate.builders import features
+
+
+def test_builds_four_features_fixtures(tmp_path):
+    records = features.build_all(tmp_path)
+    expected = {"acroform-empty", "acroform-partially-filled",
+                "acroform-fully-filled", "acroform-signed"}
+    assert {r.id for r in records} == expected
+
+
+def test_acroform_empty_has_form_fields(tmp_path):
+    features.build_all(tmp_path)
+    reader = pypdf.PdfReader(str(tmp_path / "acroform-empty.pdf"))
+    fields = reader.get_fields() or {}
+    assert len(fields) >= 1
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_features.py -v`
+Expected: FAIL.
+
+- [ ] **Step 3: Implement `generate/builders/features.py`**
+
+```python
+"""AcroForm fixtures: empty, partially-filled, fully-filled, signed.
+
+The signed variant uses a self-signed certificate via pikepdf. Chain-of-trust
+verification by consumers should be expected to fail - which is itself useful
+for testing how signature-verification code handles untrusted signers.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import io
+from pathlib import Path
+
+import pikepdf
+import pypdf
+from reportlab.lib.pagesizes import LETTER
+from reportlab.pdfbase import pdfform
+from reportlab.pdfgen import canvas
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec, Feature,
+)
+
+
+def _make_form_pdf(field_values: dict[str, str]) -> bytes:
+    """Generate a PDF containing three AcroForm text fields. Pre-fill those
+    listed in `field_values`."""
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pageCompression=1)
+    c.setFont("Helvetica", 14)
+    c.drawString(72, LETTER[1] - 80, "pdfbin.net AcroForm fixture")
+    c.drawString(72, LETTER[1] - 110, "Three text fields below. Tab to navigate.")
+
+    form = c.acroForm
+    y = LETTER[1] - 180
+    for name in ("name", "email", "phone"):
+        c.drawString(72, y + 4, f"{name}:")
+        form.textfield(
+            name=name,
+            tooltip=name,
+            x=160, y=y, width=240, height=20,
+            value=field_values.get(name, ""),
+            borderColor=(0.5, 0.5, 0.5), fillColor=(1, 1, 1),
+            forceBorder=True,
+        )
+        y -= 40
+
+    c.showPage()
+    c.save()
+    return buf.getvalue()
+
+
+def _sign_pdf(unsigned: bytes) -> bytes:
+    """Add a visible signature widget with a self-signed certificate.
+
+    Using pikepdf to attach a signature dictionary; the underlying signing
+    is delegated to a small inline cryptography step.
+    """
+    # Generate an ephemeral self-signed cert.
+    from cryptography import x509
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.hazmat.primitives.serialization import pkcs12
+    from cryptography.x509.oid import NameOID
+    import datetime
+
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    subject = issuer = x509.Name([
+        x509.NameAttribute(NameOID.COMMON_NAME, "pdfbin.net test signer"),
+    ])
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(issuer)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.now(datetime.UTC))
+        .not_valid_after(datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=3650))
+        .sign(key, hashes.SHA256())
+    )
+    p12 = pkcs12.serialize_key_and_certificates(
+        b"pdfbin", key, cert, None,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+
+    # endesive or pyhanko would be the real signing libraries, but to keep
+    # the dep surface tight we use pyhanko (already conventional for PDF
+    # signing in Python).
+    from pyhanko.sign import signers
+    from pyhanko.sign.signers import PdfSignatureMetadata
+    from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
+    from pyhanko.sign.fields import SigFieldSpec, append_signature_field
+
+    signer = signers.SimpleSigner.load_pkcs12(io.BytesIO(p12), passphrase=None)
+
+    src = IncrementalPdfFileWriter(io.BytesIO(unsigned))
+    append_signature_field(src, SigFieldSpec(sig_field_name="signature", on_page=0,
+                                             box=(72, 72, 300, 132)))
+    out = io.BytesIO()
+    signers.sign_pdf(
+        src,
+        signature_meta=PdfSignatureMetadata(field_name="signature"),
+        signer=signer,
+        output=out,
+    )
+    return out.getvalue()
+
+
+def _hash(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+
+def _record(id_: str, data: bytes, description: str,
+            features: set[Feature]) -> FixtureRecord:
+    return FixtureRecord(
+        id=id_,
+        size_bytes=len(data),
+        sha256=_hash(data),
+        page_count=1,
+        description=description,
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=Provenance.DIGITAL_NATIVE,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=features,
+        source_script=f"generate/builders/features.py:{id_.replace('-', '_')}",
+    )
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    records: list[FixtureRecord] = []
+
+    empty = _make_form_pdf({})
+    (static_dir / "acroform-empty.pdf").write_bytes(empty)
+    records.append(_record("acroform-empty", empty,
+                           "PDF with three empty AcroForm text fields (name, email, phone).",
+                           {Feature.ACROFORM}))
+
+    partial = _make_form_pdf({"name": "Jane Doe"})
+    (static_dir / "acroform-partially-filled.pdf").write_bytes(partial)
+    records.append(_record("acroform-partially-filled", partial,
+                           "AcroForm with the name field filled and the other two left empty.",
+                           {Feature.ACROFORM}))
+
+    full = _make_form_pdf({"name": "Jane Doe", "email": "jane@example.com", "phone": "+1-555-0100"})
+    (static_dir / "acroform-fully-filled.pdf").write_bytes(full)
+    records.append(_record("acroform-fully-filled", full,
+                           "AcroForm with all three fields filled.",
+                           {Feature.ACROFORM}))
+
+    signed = _sign_pdf(full)
+    (static_dir / "acroform-signed.pdf").write_bytes(signed)
+    records.append(_record("acroform-signed", signed,
+                           "Filled AcroForm signed with an ephemeral self-signed certificate "
+                           "(chain-of-trust verification by consumers is expected to fail).",
+                           {Feature.ACROFORM, Feature.SIGNED}))
+
+    return records
+```
+
+- [ ] **Step 4: Add pyhanko + cryptography to requirements.txt**
+
+Append:
+```
+pyhanko>=0.25
+cryptography>=42
+```
+
+Then: `pip install -r requirements.txt`
+
+- [ ] **Step 5: Register builder**
+
+Append `"generate.builders.features"` to `BUILDER_MODULES`.
+
+- [ ] **Step 6: Run tests**
+
+Run: `pytest tests/test_builders_features.py -v`
+Expected: PASS.
+
+- [ ] **Step 7: Regenerate and commit**
+
+```bash
+python -m generate.pipeline
+git add requirements.txt generate/builders/features.py tests/test_builders_features.py generate/pipeline.py static/
+git commit -m "feat(builders): features - AcroForm empty/partial/full/signed"
+git push
+```
+
+---
+
+## Task 11: scanning helper module
+
+**Files:**
+- Create: `generate/scanning.py`
+
+This is a non-builder utility module imported by `provenance.py` and `documents.py` to turn any clean PDF into a "scanned" version. It rasterizes pages via Ghostscript, applies optional noise/skew with Pillow, and packs the result back into a PDF with img2pdf.
+
+- [ ] **Step 1: Implement `generate/scanning.py`**
+
+```python
+"""Rasterize a PDF and re-pack it as a 'scanned' PDF with optional noise/skew.
+
+Used by `provenance.py` and `documents.py` to derive scanned variants. The
+rasterization uses Ghostscript; the image manipulation uses Pillow; the
+re-pack uses img2pdf.
+"""
+
+from __future__ import annotations
+
+import io
+import shutil
+import subprocess
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
+
+import img2pdf
+from PIL import Image
+
+
+@dataclass(frozen=True)
+class ScanProfile:
+    dpi: int
+    noise: str          # "low" | "high"
+    skew_degrees: float
+
+
+def _rasterize_with_gs(pdf_bytes: bytes, dpi: int) -> list[Image.Image]:
+    if shutil.which("gs") is None:
+        raise RuntimeError("Ghostscript not installed; required for scanning.")
+    with tempfile.TemporaryDirectory() as tmp:
+        src = Path(tmp) / "src.pdf"
+        src.write_bytes(pdf_bytes)
+        out_pattern = str(Path(tmp) / "page-%03d.png")
+        cmd = [
+            "gs",
+            f"-r{dpi}",
+            "-dBATCH", "-dNOPAUSE", "-dQUIET",
+            "-sDEVICE=pnggray",
+            f"-sOutputFile={out_pattern}",
+            str(src),
+        ]
+        subprocess.run(cmd, check=True)
+        images = []
+        for png_path in sorted(Path(tmp).glob("page-*.png")):
+            images.append(Image.open(png_path).copy())
+        return images
+
+
+def _apply_noise(img: Image.Image, level: str) -> Image.Image:
+    import random
+    px = img.load()
+    w, h = img.size
+    intensity = 30 if level == "low" else 90
+    speckle_density = 0.01 if level == "low" else 0.05
+    speckles = int(w * h * speckle_density)
+    for _ in range(speckles):
+        x = random.randint(0, w - 1)
+        y = random.randint(0, h - 1)
+        cur = px[x, y]
+        delta = random.randint(-intensity, intensity)
+        if isinstance(cur, tuple):
+            new = tuple(max(0, min(255, c + delta)) for c in cur)
+            px[x, y] = new
+        else:
+            px[x, y] = max(0, min(255, cur + delta))
+    return img
+
+
+def _apply_skew(img: Image.Image, degrees: float) -> Image.Image:
+    return img.rotate(degrees, resample=Image.BICUBIC, fillcolor=255, expand=True)
+
+
+def scan_pdf(pdf_bytes: bytes, profile: ScanProfile) -> bytes:
+    """Return a new PDF that simulates the input as a scanned document."""
+    pages = _rasterize_with_gs(pdf_bytes, profile.dpi)
+    processed: list[bytes] = []
+    for img in pages:
+        if profile.noise:
+            img = _apply_noise(img, profile.noise)
+        if profile.skew_degrees:
+            img = _apply_skew(img, profile.skew_degrees)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        processed.append(buf.getvalue())
+    return img2pdf.convert(processed)
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add generate/scanning.py
+git commit -m "feat: scanning helper - rasterize+noise+skew via gs/Pillow/img2pdf"
+git push
+```
+
+---
+
+## Task 12: provenance builder (scanned variants without document shape)
+
+**Files:**
+- Create: `generate/builders/provenance.py`
+- Create: `tests/test_builders_provenance.py`
+- Modify: `generate/pipeline.py`
+
+- [ ] **Step 1: Write the failing test**
+
+`tests/test_builders_provenance.py`:
+
+```python
+from generate.builders import provenance
+
+
+def test_builds_five_provenance_fixtures(tmp_path):
+    records = provenance.build_all(tmp_path)
+    expected = {
+        "scanned-clean-300dpi", "scanned-clean-200dpi",
+        "scanned-noisy-300dpi", "scanned-skewed-3deg",
+        "scanned-skewed-noisy",
+    }
+    assert {r.id for r in records} == expected
+
+
+def test_provenance_records_carry_scan_quality(tmp_path):
+    records = provenance.build_all(tmp_path)
+    record_300 = next(r for r in records if r.id == "scanned-clean-300dpi")
+    assert record_300.scan_quality == {"dpi": 300, "noise": None, "skew_degrees": 0}
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_provenance.py -v`
+Expected: FAIL.
+
+- [ ] **Step 3: Implement `generate/builders/provenance.py`**
+
+```python
+"""Scanned variants of a clean clean-letter base, without any document shape."""
+
+from __future__ import annotations
+
+import hashlib
+import io
+from pathlib import Path
+
+from reportlab.lib.pagesizes import LETTER
+from reportlab.pdfgen import canvas
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec,
+)
+from generate.scanning import ScanProfile, scan_pdf
+
+
+def _clean_letter_base() -> bytes:
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pageCompression=1)
+    c.setFont("Helvetica", 18)
+    c.drawString(72, LETTER[1] - 100, "pdfbin.net scanned-variant base")
+    c.setFont("Helvetica", 12)
+    c.drawString(72, LETTER[1] - 130, "Source for provenance.py scans.")
+    c.drawString(72, LETTER[1] - 150, "Body text continues. Lorem ipsum dolor sit amet, "
+                                       "consectetur adipiscing elit.")
+    c.showPage()
+    c.save()
+    return buf.getvalue()
+
+
+def _hash(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+
+def _record(id_: str, data: bytes, scan_quality: dict, description: str,
+            provenance_value: Provenance) -> FixtureRecord:
+    return FixtureRecord(
+        id=id_,
+        size_bytes=len(data),
+        sha256=_hash(data),
+        page_count=1,
+        description=description,
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=DocumentShape.BLANK,
+        provenance=provenance_value,
+        paper_size=PaperSize.US_LETTER,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        scan_quality=scan_quality,
+        source_script=f"generate/builders/provenance.py:{id_.replace('-', '_')}",
+    )
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    base = _clean_letter_base()
+    out: list[FixtureRecord] = []
+    variants = [
+        ("scanned-clean-300dpi", ScanProfile(300, "", 0),
+         {"dpi": 300, "noise": None, "skew_degrees": 0},
+         Provenance.SCANNED_CLEAN,
+         "Clean 300 DPI scan of a generic Letter PDF."),
+        ("scanned-clean-200dpi", ScanProfile(200, "", 0),
+         {"dpi": 200, "noise": None, "skew_degrees": 0},
+         Provenance.SCANNED_CLEAN,
+         "Clean 200 DPI scan of a generic Letter PDF."),
+        ("scanned-noisy-300dpi", ScanProfile(300, "high", 0),
+         {"dpi": 300, "noise": "high", "skew_degrees": 0},
+         Provenance.SCANNED_NOISY,
+         "Noisy 300 DPI scan with high-density speckle noise."),
+        ("scanned-skewed-3deg", ScanProfile(300, "", 3.0),
+         {"dpi": 300, "noise": None, "skew_degrees": 3},
+         Provenance.SCANNED_SKEWED,
+         "Clean 300 DPI scan rotated 3 degrees."),
+        ("scanned-skewed-noisy", ScanProfile(300, "high", 3.0),
+         {"dpi": 300, "noise": "high", "skew_degrees": 3},
+         Provenance.SCANNED_NOISY_SKEWED,
+         "Noisy 3-degree skewed 300 DPI scan - hardest realistic case."),
+    ]
+    for id_, profile, sq, prov, desc in variants:
+        data = scan_pdf(base, profile)
+        path = static_dir / f"{id_}.pdf"
+        path.write_bytes(data)
+        out.append(_record(id_, data, sq, desc, prov))
+    return out
+```
+
+- [ ] **Step 4: Register builder**
+
+Append `"generate.builders.provenance"` to `BUILDER_MODULES`.
+
+- [ ] **Step 5: Run tests**
+
+Run: `pytest tests/test_builders_provenance.py -v`
+Expected: PASS.
+
+- [ ] **Step 6: Regenerate and commit**
+
+```bash
+python -m generate.pipeline
+git add generate/builders/provenance.py tests/test_builders_provenance.py generate/pipeline.py static/
+git commit -m "feat(builders): provenance - 5 scanned variants (clean/noisy/skewed combos)"
+git push
+```
+
+---
+
+## Task 13: documents builder (real-world document shapes)
+
+**Files:**
+- Create: `generate/builders/documents.py`
+- Create: `tests/test_builders_documents.py`
+- Create: `generate/sources/PROVENANCE.md`
+- (Manual placement) `generate/sources/irs-1040-blank.pdf`
+- Modify: `generate/pipeline.py`
+
+- [ ] **Step 1: Place the IRS 1040 source PDF**
+
+Manually download a blank IRS Form 1040 from irs.gov (most recent tax year) and save it as `generate/sources/irs-1040-blank.pdf`. Note the year and source URL for `PROVENANCE.md`.
+
+- [ ] **Step 2: Write `generate/sources/PROVENANCE.md`**
+
+```markdown
+# pdfbin source-asset provenance
+
+Source PDFs in this directory are either generated by us (deterministically,
+via reportlab) or imported from explicitly CC0 / public-domain sources.
+Each entry below documents the chain of custody.
+
+## irs-1040-blank.pdf
+
+- Source: https://www.irs.gov/pub/irs-pdf/f1040.pdf
+- Tax year: 2025 (update on re-import)
+- License: US federal government work, public domain (17 U.S.C. § 105)
+- Downloaded: 2026-05-12
+- Verified: filename matches `f1040.pdf` at the source URL on the date above.
+```
+
+- [ ] **Step 3: Write the failing test**
+
+`tests/test_builders_documents.py`:
+
+```python
+import pytest
+from pathlib import Path
+
+from generate.builders import documents
+
+
+SOURCES_DIR = Path("generate/sources")
+HAS_IRS = (SOURCES_DIR / "irs-1040-blank.pdf").exists()
+
+
+def test_builds_nine_document_fixtures(tmp_path):
+    if not HAS_IRS:
+        pytest.skip("Missing generate/sources/irs-1040-blank.pdf - see Task 13 step 1.")
+    records = documents.build_all(tmp_path)
+    expected = {
+        "fax-cover-letter-clean", "invoice-letter-clean",
+        "receipt-letter-clean", "irs-1040-blank",
+        "bank-statement-letter-clean", "contract-nda-letter-clean",
+        "lab-report-letter-clean",
+        # Cross-axis (document + scanned):
+        "fax-cover-letter-scanned-noisy",
+        "receipt-scanned-noisy-300dpi",
+    }
+    assert {r.id for r in records} == expected
+
+
+def test_irs_1040_is_imported_verbatim(tmp_path):
+    if not HAS_IRS:
+        pytest.skip("Missing IRS source PDF.")
+    documents.build_all(tmp_path)
+    src = (SOURCES_DIR / "irs-1040-blank.pdf").read_bytes()
+    out = (tmp_path / "irs-1040-blank.pdf").read_bytes()
+    assert src == out
+```
+
+- [ ] **Step 4: Run test to verify it fails**
+
+Run: `pytest tests/test_builders_documents.py -v`
+Expected: FAIL.
+
+- [ ] **Step 5: Implement `generate/builders/documents.py`**
+
+```python
+"""Document-shape fixtures: fax cover, invoice, receipt, IRS 1040,
+bank statement, contract NDA, lab report. Includes two cross-axis variants
+(document + scanned) demonstrating the multi-facet model.
+
+All synthesized entities use fake names. The IRS 1040 is imported verbatim
+from generate/sources/irs-1040-blank.pdf - see PROVENANCE.md.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import io
+from pathlib import Path
+
+from reportlab.lib.pagesizes import LETTER
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+
+from generate.facets import (
+    FixtureRecord, Health, Access, DocumentShape, Provenance,
+    PaperSize, Spec,
+)
+from generate.scanning import ScanProfile, scan_pdf
+
+
+SOURCES = Path("generate/sources")
+
+
+def _hash(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
+
+
+def _record(id_, data, page_count, shape, provenance, paper_size,
+            description, scan_quality=None):
+    return FixtureRecord(
+        id=id_,
+        size_bytes=len(data),
+        sha256=_hash(data),
+        page_count=page_count,
+        description=description,
+        health=Health.VALID,
+        access=Access.OPEN,
+        document_shape=shape,
+        provenance=provenance,
+        paper_size=paper_size,
+        orientation="portrait",
+        spec=Spec.PDF_1_7,
+        features=set(),
+        scan_quality=scan_quality,
+        source_script=f"generate/builders/documents.py:{id_.replace('-', '_')}",
+    )
+
+
+def _fax_cover() -> bytes:
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf)
+    w, h = LETTER
+    c.setFont("Helvetica-Bold", 26)
+    c.drawString(72, h - 90, "FAX COVER SHEET")
+    c.setFont("Helvetica", 12)
+    y = h - 150
+    for label, value in [
+        ("To:", "John Smith"), ("From:", "Jane Doe"),
+        ("Company:", "Acme Widgets Inc."),
+        ("Fax:", "+1-555-0100"), ("Pages:", "3 (including this cover)"),
+        ("Date:", "2026-05-12"),
+        ("Re:", "Q2 inventory reconciliation"),
+    ]:
+        c.drawString(72, y, label)
+        c.drawString(180, y, value)
+        y -= 28
+    c.setFont("Helvetica-Oblique", 10)
+    c.drawString(72, 100, "This fax is for testing only. CC0-1.0.")
+    c.showPage()
+    c.save()
+    return buf.getvalue()
+
+
+def _invoice() -> bytes:
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=LETTER)
+    styles = getSampleStyleSheet()
+    flow = [
+        Paragraph("<b>INVOICE</b>", styles["Title"]),
+        Spacer(1, 12),
+        Paragraph("Acme Widgets Inc. <br/>123 Main St <br/>Springfield, IL", styles["Normal"]),
+        Spacer(1, 12),
+        Paragraph("Bill To: Globex Corp.", styles["Normal"]),
+        Spacer(1, 12),
+        Table(
+            [["Description", "Qty", "Price", "Total"],
+             ["Widget Type A", "10", "$5.00", "$50.00"],
+             ["Widget Type B", "4", "$12.50", "$50.00"],
+             ["Shipping", "1", "$10.00", "$10.00"],
+             ["", "", "Total", "$110.00"]],
+            style=TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+            ])
+        ),
+    ]
+    doc.build(flow)
+    return buf.getvalue()
+
+
+def _receipt() -> bytes:
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf)
+    w, h = LETTER
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(72, h - 80, "Acme Coffee Shop")
+    c.setFont("Helvetica", 10)
+    c.drawString(72, h - 100, "Receipt #100023 - 2026-05-12 09:14")
+    y = h - 140
+    for line, price in [("Latte", "$4.50"), ("Croissant", "$3.25"), ("Tip", "$1.00")]:
+        c.drawString(72, y, line)
+        c.drawRightString(w - 72, y, price)
+        y -= 16
+    c.line(72, y - 4, w - 72, y - 4)
+    c.drawString(72, y - 24, "Total")
+    c.drawRightString(w - 72, y - 24, "$8.75")
+    c.showPage()
+    c.save()
+    return buf.getvalue()
+
+
+def _bank_statement() -> bytes:
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=LETTER)
+    styles = getSampleStyleSheet()
+    rows = [["Date", "Description", "Amount", "Balance"]]
+    for d, desc, amt, bal in [
+        ("2026-04-15", "Opening balance", "", "$1,250.00"),
+        ("2026-04-18", "Direct deposit", "+$3,400.00", "$4,650.00"),
+        ("2026-04-22", "Rent", "-$1,800.00", "$2,850.00"),
+        ("2026-04-30", "Closing balance", "", "$2,850.00"),
+    ]:
+        rows.append([d, desc, amt, bal])
+    flow = [
+        Paragraph("<b>Globex Bank - Account Statement</b>", styles["Title"]),
+        Paragraph("Account #****1234 - Period: 2026-04-01 to 2026-04-30", styles["Normal"]),
+        Spacer(1, 12),
+        Table(rows, style=TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ])),
+    ]
+    doc.build(flow)
+    return buf.getvalue()
+
+
+def _contract_nda() -> bytes:
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=LETTER)
+    styles = getSampleStyleSheet()
+    body = (
+        "This Mutual Non-Disclosure Agreement is entered into between Acme "
+        "Widgets Inc. ('Discloser') and Globex Corp. ('Recipient') as of "
+        "2026-05-12. The parties agree to maintain in confidence all "
+        "non-public information disclosed in connection with discussions of "
+        "a potential commercial relationship..."
+    ) * 3
+    flow = [
+        Paragraph("<b>MUTUAL NON-DISCLOSURE AGREEMENT</b>", styles["Title"]),
+        Spacer(1, 24),
+        Paragraph(body, styles["BodyText"]),
+        Spacer(1, 36),
+        Paragraph("________________________________", styles["Normal"]),
+        Paragraph("Jane Doe, Acme Widgets Inc.", styles["Normal"]),
+    ]
+    doc.build(flow)
+    return buf.getvalue()
+
+
+def _lab_report() -> bytes:
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=LETTER)
+    styles = getSampleStyleSheet()
+    flow = [
+        Paragraph("<b>Globex Diagnostics Lab Report</b>", styles["Title"]),
+        Paragraph("Patient: John Doe - DOB: 1980-01-01 - Collected: 2026-05-10",
+                  styles["Normal"]),
+        Spacer(1, 12),
+        Table(
+            [["Test", "Result", "Reference", "Flag"],
+             ["Hemoglobin", "14.2 g/dL", "13.5 - 17.5", ""],
+             ["Glucose", "112 mg/dL", "70 - 99", "HIGH"],
+             ["Cholesterol", "190 mg/dL", "<200", ""]],
+            style=TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ])
+        ),
+    ]
+    doc.build(flow)
+    return buf.getvalue()
+
+
+def build_all(static_dir: Path) -> list[FixtureRecord]:
+    out: list[FixtureRecord] = []
+
+    digital_native_shapes = [
+        ("fax-cover-letter-clean", _fax_cover(), DocumentShape.FAX_COVER_SHEET,
+         "Fax cover sheet on US Letter (To/From/Company/Fax/Pages/Date/Re). Synthesized."),
+        ("invoice-letter-clean", _invoice(), DocumentShape.INVOICE,
+         "Invoice on US Letter with line items and totals. Synthesized."),
+        ("receipt-letter-clean", _receipt(), DocumentShape.RECEIPT,
+         "Coffee-shop receipt on US Letter. Synthesized."),
+        ("bank-statement-letter-clean", _bank_statement(), DocumentShape.BANK_STATEMENT,
+         "Bank account statement on US Letter. Synthesized."),
+        ("contract-nda-letter-clean", _contract_nda(), DocumentShape.CONTRACT_NDA,
+         "Mutual non-disclosure agreement on US Letter. Synthesized."),
+        ("lab-report-letter-clean", _lab_report(), DocumentShape.LAB_REPORT,
+         "Diagnostics lab report on US Letter. Synthesized."),
+    ]
+
+    for id_, data, shape, desc in digital_native_shapes:
+        (static_dir / f"{id_}.pdf").write_bytes(data)
+        out.append(_record(id_, data, 1, shape, Provenance.DIGITAL_NATIVE,
+                           PaperSize.US_LETTER, desc))
+
+    # IRS 1040: imported verbatim.
+    irs_src = SOURCES / "irs-1040-blank.pdf"
+    irs_data = irs_src.read_bytes()
+    (static_dir / "irs-1040-blank.pdf").write_bytes(irs_data)
+    # Count pages with pypdf for accurate metadata.
+    import pypdf
+    pages = len(pypdf.PdfReader(io.BytesIO(irs_data)).pages)
+    out.append(_record(
+        "irs-1040-blank", irs_data, pages, DocumentShape.IRS_1040,
+        Provenance.DIGITAL_NATIVE, PaperSize.US_LETTER,
+        "Blank IRS Form 1040, imported verbatim from irs.gov. US federal work, public domain."
+    ))
+
+    # Cross-axis: scanned fax cover.
+    fc_clean = _fax_cover()
+    fc_scanned = scan_pdf(fc_clean, ScanProfile(300, "high", 0))
+    (static_dir / "fax-cover-letter-scanned-noisy.pdf").write_bytes(fc_scanned)
+    out.append(_record(
+        "fax-cover-letter-scanned-noisy", fc_scanned, 1,
+        DocumentShape.FAX_COVER_SHEET, Provenance.SCANNED_NOISY,
+        PaperSize.US_LETTER,
+        "Fax cover sheet rendered as a noisy 300 DPI scan - realistic faxed-document case.",
+        scan_quality={"dpi": 300, "noise": "high", "skew_degrees": 0},
+    ))
+
+    # Cross-axis: scanned receipt.
+    r_clean = _receipt()
+    r_scanned = scan_pdf(r_clean, ScanProfile(300, "high", 0))
+    (static_dir / "receipt-scanned-noisy-300dpi.pdf").write_bytes(r_scanned)
+    out.append(_record(
+        "receipt-scanned-noisy-300dpi", r_scanned, 1,
+        DocumentShape.RECEIPT, Provenance.SCANNED_NOISY,
+        PaperSize.US_LETTER,
+        "Receipt rendered as a noisy 300 DPI scan - classic crumpled-receipt OCR target.",
+        scan_quality={"dpi": 300, "noise": "high", "skew_degrees": 0},
+    ))
+
+    return out
+```
+
+- [ ] **Step 6: Register builder**
+
+Append `"generate.builders.documents"` to `BUILDER_MODULES`.
+
+- [ ] **Step 7: Run tests**
+
+Run: `pytest tests/test_builders_documents.py -v`
+Expected: PASS (only if irs-1040-blank.pdf is in place; otherwise SKIPPED).
+
+- [ ] **Step 8: Regenerate full pipeline and verify catalog**
+
+```bash
+python -m generate.pipeline
+cat static/catalog.json | python -c "import json,sys; d=json.load(sys.stdin); print(f'{d[\"fixture_count\"]} fixtures')"
+```
+Expected: ~52 fixtures.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add generate/builders/documents.py tests/test_builders_documents.py generate/sources/PROVENANCE.md generate/sources/irs-1040-blank.pdf generate/pipeline.py static/
+git commit -m "feat(builders): documents - 7 document shapes + 2 cross-axis scanned variants"
+git push
+```
+
+---
+
+## Task 14: Hugo bootstrap and base layouts
+
+**Files:**
+- Create: `hugo.toml`
+- Create: `archetypes/default.md`
+- Create: `content/_index.md`
+- Create: `content/by-fault.md`, `content/by-document.md`, `content/by-provenance.md`, `content/by-spec.md`, `content/by-form-factor.md`
+- Create: `content/about.md`, `content/license.md`
+- Create: `layouts/_default/baseof.html`
+- Create: `layouts/partials/head.html`, `layouts/partials/footer.html`
+- Create: `static/robots.txt`
+
+- [ ] **Step 1: Write `hugo.toml`**
+
+```toml
+baseURL = "https://pdfbin.net"
+languageCode = "en-us"
+title = "pdfbin.net"
+enableRobotsTXT = false   # we ship our own at static/robots.txt
+
+[params]
+description = "A free library of test PDFs at stable URLs you can drop into your test suite."
+accent_color = "#b14a3b"  # placeholder; final value comes from claude.ai/design output
+
+[markup.goldmark.renderer]
+unsafe = true   # allow raw HTML in markdown content files
+
+[outputs]
+home = ["HTML"]
+section = ["HTML"]
+page = ["HTML"]
+```
+
+- [ ] **Step 2: Write content stubs**
+
+`content/_index.md`:
+```markdown
+---
+title: pdfbin.net
+layout: index
+---
+```
+
+For each of the five view pages (`content/by-fault.md`, `by-document.md`, `by-provenance.md`, `by-spec.md`, `by-form-factor.md`), the frontmatter only:
+
+```markdown
+---
+title: By Failure Mode
+layout: by-fault
+---
+```
+(Update the `title` and `layout` for each view.)
+
+`content/about.md`:
+```markdown
+---
+title: About pdfbin.net
+layout: about
+---
+
+pdfbin.net is a free CC0 library of PDF fixtures for testing. Every fixture
+lives at a stable flat URL; bytes are immutable; multi-axis typed metadata
+lives in /catalog.json. See [the design spec](https://github.com/mintfax/pdfbin/blob/dev/docs/superpowers/specs/2026-05-12-pdfbin-net-design.md) for why.
+```
+
+`content/license.md`:
+```markdown
+---
+title: License
+layout: license
+---
+
+All fixtures are released under [Creative Commons CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+Site and pipeline code released under MIT - see [LICENSE](https://github.com/mintfax/pdfbin/blob/dev/LICENSE).
+```
+
+- [ ] **Step 3: Write `layouts/_default/baseof.html`**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  {{ block "main" . }}{{ end }}
+  {{ partial "footer.html" . }}
+</body>
+</html>
+```
+
+- [ ] **Step 4: Write partials**
+
+`layouts/partials/head.html`:
+```html
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ .Title }} - pdfbin.net</title>
+<meta name="description" content="{{ .Site.Params.description }}">
+<link rel="stylesheet" href="/css/main.css">
+```
+
+`layouts/partials/footer.html`:
+```html
+<footer>
+  <p>Source: <a href="https://github.com/mintfax/pdfbin">github.com/mintfax/pdfbin</a>.
+     Fixtures CC0-1.0; site code MIT.</p>
+</footer>
+```
+
+- [ ] **Step 5: Write `static/robots.txt`**
+
+```
+User-agent: *
+Allow: /
+Sitemap: https://pdfbin.net/sitemap.xml
+```
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add hugo.toml content/ layouts/_default/baseof.html layouts/partials/ static/robots.txt
+git commit -m "feat: Hugo bootstrap - config, content stubs, base layout, partials"
+git push
+```
+
+---
+
+## Task 15: fixture-row partial and home page (multi-view)
+
+**Files:**
+- Create: `layouts/partials/fixture-row.html`
+- Create: `layouts/index.html`
+- Create: `assets/css/main.css`
+
+- [ ] **Step 1: Write the fixture-row partial**
+
+`layouts/partials/fixture-row.html`:
+
+```html
+{{/* Expects a fixture record from catalog.json */}}
+<li class="fixture">
+  <code class="fid"><a href="/{{ .id }}.pdf">{{ .id }}.pdf</a></code>
+  <span class="fdesc">{{ .description }}</span>
+  <span class="ffacets">
+    {{ with .facets.health }}<span class="badge h">{{ . }}</span>{{ end }}
+    {{ with .facets.document_shape }}{{ if ne . "blank" }}<span class="badge d">{{ . }}</span>{{ end }}{{ end }}
+    {{ with .facets.provenance }}{{ if ne . "digital-native" }}<span class="badge p">{{ . }}</span>{{ end }}{{ end }}
+    {{ with .facets.spec }}<span class="badge s">{{ . }}</span>{{ end }}
+    {{ with .facets.paper_size }}{{ if ne . "mixed" }}<span class="badge fs">{{ . }}</span>{{ end }}{{ end }}
+  </span>
+</li>
+```
+
+- [ ] **Step 2: Write the home page layout**
+
+`layouts/index.html`:
+
+```html
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+{{ $fixtures := $catalog.fixtures }}
+
+<header class="hero">
+  <h1>pdfbin.net</h1>
+  <p class="tagline">A free library of test PDFs at stable URLs you can drop into your test suite.</p>
+</header>
+
+<section class="quickstart">
+  <h2>Quick start</h2>
+<pre><code>curl https://pdfbin.net/xref-truncated.pdf -o fixture.pdf
+curl https://pdfbin.net/fax-cover-letter-clean.pdf -o cover.pdf
+curl https://pdfbin.net/aes256-owner.pdf -o encrypted.pdf  # passwords in /catalog.json</code></pre>
+</section>
+
+<nav class="catalog-nav">
+  <a href="#by-fault">By Failure Mode</a>
+  <a href="#by-document">By Document Shape</a>
+  <a href="#by-provenance">By Provenance</a>
+  <a href="#by-spec">By Spec Compliance</a>
+  <a href="#by-form-factor">By Form Factor</a>
+</nav>
+
+<section id="by-fault">
+  <h2>By Failure Mode</h2>
+  <ul class="fixtures">
+    {{ range where $fixtures "facets.health" "ne" "valid" }}{{ partial "fixture-row.html" . }}{{ end }}
+  </ul>
+</section>
+
+<section id="by-document">
+  <h2>By Document Shape</h2>
+  <ul class="fixtures">
+    {{ range where $fixtures "facets.document_shape" "ne" "blank" }}{{ partial "fixture-row.html" . }}{{ end }}
+  </ul>
+</section>
+
+<section id="by-provenance">
+  <h2>By Provenance</h2>
+  <ul class="fixtures">
+    {{ range where $fixtures "facets.provenance" "ne" "digital-native" }}{{ partial "fixture-row.html" . }}{{ end }}
+  </ul>
+</section>
+
+<section id="by-spec">
+  <h2>By Spec Compliance</h2>
+  <ul class="fixtures">
+    {{ range $fixtures }}{{ partial "fixture-row.html" . }}{{ end }}
+  </ul>
+</section>
+
+<section id="by-form-factor">
+  <h2>By Form Factor</h2>
+  <ul class="fixtures">
+    {{ range where $fixtures "facets.paper_size" "in" (slice "DIN-A4" "US-Letter" "JIS-B5" "mixed") }}{{ partial "fixture-row.html" . }}{{ end }}
+  </ul>
+</section>
+
+<section class="discovery">
+  <h2>Discovery surfaces</h2>
+  <ul>
+    <li><a href="/catalog.json">/catalog.json</a> - typed catalog with facets per fixture</li>
+    <li><a href="/openapi.json">/openapi.json</a> - OpenAPI 3.1 spec</li>
+    <li><a href="/llms.txt">/llms.txt</a> - AI-agent summary</li>
+    <li><a href="https://github.com/mintfax/pdfbin">github.com/mintfax/pdfbin</a> - source</li>
+  </ul>
+  <p>Flat URLs, immutable bytes, versioning in the catalog.</p>
+</section>
+{{ end }}
+```
+
+- [ ] **Step 3: Write minimal `assets/css/main.css`**
+
+This is placeholder styling - the real visual design lands in Task 17 from the claude.ai/design output. For now, just make the page readable.
+
+```css
+:root {
+  --accent: #b14a3b;
+  --bg: #fafafa;
+  --fg: #1a1a1a;
+  --muted: #666;
+  --border: #ddd;
+}
+body { background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, sans-serif; max-width: 980px; margin: 2rem auto; padding: 0 1rem; }
+h1, h2 { color: var(--accent); }
+header.hero { border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+.tagline { color: var(--muted); font-size: 1.1rem; }
+.catalog-nav { position: sticky; top: 0; background: var(--bg); padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 1rem; flex-wrap: wrap; }
+.catalog-nav a { color: var(--accent); text-decoration: none; }
+.fixtures { list-style: none; padding: 0; }
+.fixture { padding: 0.4rem 0; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.2rem; }
+.fid a { font-family: ui-monospace, monospace; color: var(--accent); text-decoration: none; }
+.fdesc { color: var(--muted); }
+.ffacets { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 0.1rem 0.4rem; background: #eee; border-radius: 3px; font-size: 0.75rem; color: var(--muted); }
+pre, code { font-family: ui-monospace, monospace; }
+pre { background: #f0f0f0; padding: 1rem; overflow-x: auto; }
+footer { color: var(--muted); margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+```
+
+- [ ] **Step 4: Build Hugo and verify**
+
+Run: `hugo --minify`
+Expected: `public/` directory is created with `public/index.html` and all view pages. No build errors.
+
+- [ ] **Step 5: Smoke-check the rendered output**
+
+Run: `grep -c "fixture" public/index.html`
+Expected: dozens of matches (the fixture rows).
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add layouts/partials/fixture-row.html layouts/index.html assets/css/main.css
+git commit -m "feat: home page with multi-view rendering of catalog.json"
+git push
+```
+
+---
+
+## Task 16: Per-view layouts (by-fault, by-document, by-provenance, by-spec, by-form-factor)
+
+**Files:**
+- Create: `layouts/by-fault.html`
+- Create: `layouts/by-document.html`
+- Create: `layouts/by-provenance.html`
+- Create: `layouts/by-spec.html`
+- Create: `layouts/by-form-factor.html`
+
+- [ ] **Step 1: Write `layouts/by-fault.html`**
+
+```html
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<h1>By Failure Mode</h1>
+<p>PDFs damaged in known, named ways. Each fixture's facet record names the exact corruption and the source-script function that produces it.</p>
+<ul class="fixtures">
+  {{ range where $catalog.fixtures "facets.health" "ne" "valid" }}{{ partial "fixture-row.html" . }}{{ end }}
+</ul>
+<p><a href="/">- back to all views</a></p>
+{{ end }}
+```
+
+- [ ] **Step 2: Write `layouts/by-document.html`**
+
+```html
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<h1>By Document Shape</h1>
+<p>PDFs shaped like real-world documents: fax cover sheets, invoices, receipts, IRS forms, lab reports, contracts, bank statements.</p>
+<ul class="fixtures">
+  {{ range where $catalog.fixtures "facets.document_shape" "ne" "blank" }}{{ partial "fixture-row.html" . }}{{ end }}
+</ul>
+<p><a href="/">- back to all views</a></p>
+{{ end }}
+```
+
+- [ ] **Step 3: Write `layouts/by-provenance.html`**
+
+```html
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<h1>By Provenance</h1>
+<p>Digital-native vs scanned variants. Scanned variants vary by DPI, noise, and skew.</p>
+<ul class="fixtures">
+  {{ range where $catalog.fixtures "facets.provenance" "ne" "digital-native" }}{{ partial "fixture-row.html" . }}{{ end }}
+</ul>
+<p><a href="/">- back to all views</a></p>
+{{ end }}
+```
+
+- [ ] **Step 4: Write `layouts/by-spec.html`**
+
+```html
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<h1>By Spec Compliance</h1>
+<p>PDF spec versions (1.4 / 1.7 / 2.0) and PDF/A conformance levels (1B, 1A, 2B, 3B, 4).</p>
+<ul class="fixtures">
+  {{ range $catalog.fixtures }}{{ partial "fixture-row.html" . }}{{ end }}
+</ul>
+<p><a href="/">- back to all views</a></p>
+{{ end }}
+```
+
+- [ ] **Step 5: Write `layouts/by-form-factor.html`**
+
+```html
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<h1>By Form Factor</h1>
+<p>Paper sizes (DIN A4, US Letter, JIS B5, mixed), page counts (1 to 500), and orientations.</p>
+<ul class="fixtures">
+  {{ range $catalog.fixtures }}{{ partial "fixture-row.html" . }}{{ end }}
+</ul>
+<p><a href="/">- back to all views</a></p>
+{{ end }}
+```
+
+- [ ] **Step 6: Build and verify all views**
+
+Run: `hugo --minify && ls public/`
+Expected: `public/index.html`, `public/by-fault/index.html`, `public/by-document/index.html`, etc.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add layouts/by-fault.html layouts/by-document.html layouts/by-provenance.html layouts/by-spec.html layouts/by-form-factor.html
+git commit -m "feat: five per-view layouts (by-fault, by-document, by-provenance, by-spec, by-form-factor)"
+git push
+```
+
+---
+
+## Task 17: Apply claude.ai/design landing-page output
+
+This task is a placeholder for integrating the visual design from claude.ai/design once it's generated against the updated prompt (the spec's "Landing page" section).
+
+- [ ] **Step 1: Re-run claude.ai/design** with the prompt in the spec's "Landing page" section. Receive the HTML and CSS output.
+
+- [ ] **Step 2: Replace `assets/css/main.css`** with the styles from the design output. Adjust the color palette to match (the spec suggests a desaturated red / burnt orange accent).
+
+- [ ] **Step 3: Update `layouts/index.html`** to match the design's HTML structure where it differs from the placeholder. Preserve all template directives (`{{ range }}`, `{{ partial }}`, etc.) - these are not visual concerns and must remain.
+
+- [ ] **Step 4: Update `layouts/partials/fixture-row.html`** to match the design's per-row layout.
+
+- [ ] **Step 5: Update per-view layouts** to inherit the same chrome.
+
+- [ ] **Step 6: Rebuild and verify**
+
+Run: `hugo --minify`
+Expected: clean build with no errors. Open `public/index.html` locally and confirm visual appearance matches the claude.ai/design output.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add assets/css/main.css layouts/
+git commit -m "feat: apply claude.ai/design visual treatment to landing + view pages"
+git push
+```
+
+---
+
+## Task 18: CI Dockerfile
+
+**Files:**
+- Create: `Dockerfile`
+- Create: `.dockerignore`
+
+- [ ] **Step 1: Write `Dockerfile`**
+
+```dockerfile
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      qpdf \
+      ghostscript \
+      libffi-dev \
+      libssl-dev \
+      build-essential \
+      git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+COPY requirements.txt /work/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /work
+
+CMD ["python", "-m", "generate.pipeline"]
+```
+
+- [ ] **Step 2: Write `.dockerignore`**
+
+```
+.git
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+public
+resources
+.hugo_build.lock
+```
+
+- [ ] **Step 3: Build the image locally and verify**
+
+Run: `docker build -t pdfbin-build .`
+Expected: image builds successfully.
+
+Run: `docker run --rm -v "$(pwd):/work" pdfbin-build`
+Expected: pipeline regenerates `static/*.pdf` matching the host's existing files (no drift).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add Dockerfile .dockerignore
+git commit -m "feat: CI Dockerfile (qpdf + ghostscript + python deps)"
+git push
+```
+
+---
+
+## Task 19: GitHub Action - build verification (runs on every push to dev)
+
+**Files:**
+- Create: `.github/workflows/build.yml`
+
+- [ ] **Step 1: Write `.github/workflows/build.yml`**
+
+```yaml
+name: build
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev, production]
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system deps (qpdf + ghostscript)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qpdf ghostscript
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest
+
+      - name: Regenerate fixtures
+        run: python -m generate.pipeline
+
+      - name: Verify no drift in static/
+        run: |
+          git diff --exit-code static/ || { echo "::error::static/ drifted - regenerate locally and commit"; exit 1; }
+
+  hugo:
+    runs-on: ubuntu-latest
+    needs: pipeline
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: latest
+          extended: true
+
+      - name: Build site
+        run: hugo --minify
+
+      - name: Smoke-check output
+        run: |
+          test -f public/index.html
+          test -f public/catalog.json
+          test -f public/by-fault/index.html
+          test -f public/llms.txt
+```
+
+- [ ] **Step 2: Commit and push**
+
+```bash
+git add .github/workflows/build.yml
+git commit -m "ci: build verification (pytest + pipeline drift check + Hugo build)"
+git push
+```
+
+- [ ] **Step 3: Verify the workflow ran**
+
+Run: `gh run list --branch dev --limit 1`
+Expected: a `build` workflow that's `completed` and `success`.
+
+If it failed, fix and push fixes.
+
+---
+
+## Task 20: GitHub Action - deploy to GitHub Pages on push to production
+
+**Files:**
+- Create: `.github/workflows/deploy.yml`
+
+- [ ] **Step 1: Write `.github/workflows/deploy.yml`**
+
+```yaml
+name: deploy
+
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: latest
+          extended: true
+
+      - name: Build
+        run: hugo --minify
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+- [ ] **Step 2: Enable GitHub Pages in the repo**
+
+Run: `gh api -X POST repos/mintfax/pdfbin/pages -f source.branch=production -f source.path=/ -f build_type=workflow 2>&1 | head -5`
+
+Or via the UI: `gh repo view --web` and navigate to Settings - Pages - Source: GitHub Actions.
+
+- [ ] **Step 3: Commit and push**
+
+```bash
+git add .github/workflows/deploy.yml
+git commit -m "ci: deploy to GitHub Pages on push to production"
+git push
+```
+
+- [ ] **Step 4: Create the production branch and trigger first deploy**
+
+```bash
+git checkout -b production
+git push -u origin production
+```
+
+Then: `gh run list --branch production --limit 1`
+Expected: a `deploy` workflow running or completed.
+
+Return to dev: `git checkout dev`
+
+---
+
+## Task 21: Caddy dev preview
+
+This task uses the `caddy-site` skill to wire up the dev preview at `https://pdfbin.example.dev`.
+
+- [ ] **Step 1: Invoke the caddy-site skill**
+
+In a conversation: "set up a caddy site for pdfbin at pdfbin.example.dev serving public/"
+
+The skill handles Caddy config edit, DNS check, and verification. If invoking from outside Claude Code, follow the family pattern in `mintfax-site/CLAUDE.md`.
+
+- [ ] **Step 2: Verify the preview is live**
+
+After Caddy is configured: `hugo --minify && curl -I https://pdfbin.example.dev`
+Expected: `HTTP/2 200`.
+
+---
+
+## Task 22: Final README polish and pre-launch checklist
+
+**Files:**
+- Modify: `README.md`
+
+- [ ] **Step 1: Expand `README.md` with the development quickstart**
+
+Append to `README.md`:
+
+```markdown
+
+## Development
+
+```bash
+# Install Python deps (also installs in CI Docker image)
+pip install -r requirements.txt
+
+# Regenerate every fixture + catalog + llms.txt + openapi.json
+python -m generate.pipeline
+
+# Build the Hugo site
+hugo --minify
+
+# Run tests
+pytest
+```
+
+System dependencies (also handled by the CI Dockerfile):
+
+- `qpdf` (used by pikepdf for encryption)
+- `ghostscript` (used for PDF/A generation and scan rasterization)
+
+CI fails if `git diff --exit-code static/` shows drift after a regenerate. Regenerate locally and commit.
+```
+
+- [ ] **Step 2: Pre-launch checklist (manual verification)**
+
+- [ ] `pdfbin.net` is registered and points at GitHub Pages.
+- [ ] `production` branch deploys cleanly; visiting `https://pdfbin.net/` shows the landing page.
+- [ ] `https://pdfbin.net/catalog.json` parses as JSON and lists all ~52 fixtures.
+- [ ] `https://pdfbin.net/xref-truncated.pdf` returns a 200 with `Content-Type: application/pdf`.
+- [ ] `https://pdfbin.example.dev/` shows the same content as production.
+- [ ] Open at least one of each facet axis fixture in a PDF viewer to confirm it renders as advertised.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add README.md
+git commit -m "docs: development quickstart in README"
+git push
+```
+
+- [ ] **Step 4: Promote to production**
+
+When the pre-launch checklist is green:
+
+```bash
+git checkout production
+git merge dev
+git push
+```
+
+GH Pages deploy workflow fires; `pdfbin.net` goes live.
+
+---
+
+## Self-review notes
+
+- Every builder follows the same pattern: `build_all(static_dir) -> list[FixtureRecord]`, deterministic outputs, validated facet records, hash captured at write time.
+- Pipeline composes builders; catalog emitter is independent of any builder; tests cover each piece in isolation plus an integration check that the empty pipeline still emits all three discovery surfaces.
+- The `acroform-signed` fixture uses pyhanko + ephemeral self-signed cert; the test doesn't validate the signature itself - just that the file is built. Stronger signature tests (e.g., parse `/Sig` dict) are deferred to v1.1.
+- Per-view Hugo layouts share the `fixture-row.html` partial; if a future view needs different row rendering, the partial can take parameters.
+- The IRS 1040 import is manual (Task 13 Step 1) and the source file is committed. Re-imports for new tax years bump the fixture ID (`irs-1040-blank-2026.pdf`) per the immutability contract.
