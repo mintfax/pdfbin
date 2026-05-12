@@ -46,7 +46,7 @@ a:hover { text-decoration-color: var(--bs-link-hover-color); }
 
 /* Brand mark */
 .brand { font-family: var(--bs-font-monospace); font-weight: 600; font-size: 22px; letter-spacing: -0.01em; color: var(--bs-body-color); display: inline-flex; align-items: baseline; gap: 6px; }
-.brand-dot { display: inline-block; width: 9px; height: 9px; background: var(--bs-primary); border-radius: 2px; transform: translateY(-1px); }
+.brand-dot { color: var(--bs-primary); transform: translateY(2px); }
 .site-header { background: var(--bs-body-bg); }
 
 /* Big section heads (homepage view sections, 404 sections, preview page).
@@ -199,9 +199,16 @@ table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem;
 /* Container width matches design */
 .container.pb-wide { max-width: 1180px; }
 
-/* Sticky in-page nav for the catalog sections - background matches body
-   so it doesn't show table content underneath as it scrolls. */
-.catalog-anchors { background: var(--bs-body-bg); z-index: 10; }
+/* Sticky in-page nav for the catalog sections.
+   Explicit opaque background so it never shows table content underneath
+   when scrolling - sets both shorthand and color, plus a hex fallback in
+   case the CSS variable is scoped unexpectedly inside the stacking context.
+   Lets Bootstrap's default .sticky-top z-index (1020) apply. */
+.catalog-anchors {
+  background-color: #f7f4ee;
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 4px 8px -8px rgba(26, 24, 20, 0.18);
+}
 
 /* Text-page (about/license) typography */
 .text-page { max-width: 70ch; font-size: 1rem; line-height: 1.6; }
