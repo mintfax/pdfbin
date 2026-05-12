@@ -25,6 +25,7 @@ BUILDER_MODULES: list[str] = [
     "generate.builders.spec",
     "generate.builders.features",
     "generate.builders.provenance",
+    "generate.builders.documents",
 ]
 
 

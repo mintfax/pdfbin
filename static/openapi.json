@@ -207,6 +207,30 @@
         }
       }
     },
+    "/bank-statement-letter-clean.pdf": {
+      "get": {
+        "summary": "Bank account statement on US Letter. Synthesized.",
+        "tags": [
+          "health:valid",
+          "document_shape:bank-statement",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/byte-flipped-mid-stream.pdf": {
       "get": {
         "summary": "One byte XOR-flipped mid-content-stream. Likely renders pages with garbage.",
@@ -543,6 +567,30 @@
         }
       }
     },
+    "/contract-nda-letter-clean.pdf": {
+      "get": {
+        "summary": "Mutual non-disclosure agreement on US Letter. Synthesized.",
+        "tags": [
+          "health:valid",
+          "document_shape:contract-nda",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/eof-missing.pdf": {
       "get": {
         "summary": "%%EOF marker stripped. Parsers that key on it cannot find the end.",
@@ -567,12 +615,132 @@
         }
       }
     },
+    "/fax-cover-letter-clean.pdf": {
+      "get": {
+        "summary": "Fax cover sheet on US Letter (To/From/Company/Fax/Pages/Date/Re). Synthesized.",
+        "tags": [
+          "health:valid",
+          "document_shape:fax-cover-sheet",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fax-cover-letter-scanned-noisy.pdf": {
+      "get": {
+        "summary": "Fax cover sheet rendered as a noisy 300 DPI scan - realistic faxed-document case.",
+        "tags": [
+          "health:valid",
+          "document_shape:fax-cover-sheet",
+          "provenance:scanned-noisy",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/header-truncated.pdf": {
       "get": {
         "summary": "First line (%PDF-1.7) removed. Parsers that key on the header fail to detect a PDF.",
         "tags": [
           "health:corrupt-header-truncated",
           "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoice-letter-clean.pdf": {
+      "get": {
+        "summary": "Invoice on US Letter with line items and totals. Synthesized.",
+        "tags": [
+          "health:valid",
+          "document_shape:invoice",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/irs-1040-blank.pdf": {
+      "get": {
+        "summary": "Blank IRS Form 1040, imported verbatim from irs.gov. US federal work, public domain.",
+        "tags": [
+          "health:valid",
+          "document_shape:irs-1040",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lab-report-letter-clean.pdf": {
+      "get": {
+        "summary": "Diagnostics lab report on US Letter. Synthesized.",
+        "tags": [
+          "health:valid",
+          "document_shape:lab-report",
           "provenance:digital-native",
           "spec:PDF-1.7"
         ],
@@ -814,6 +982,54 @@
           "health:valid",
           "document_shape:blank",
           "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/receipt-letter-clean.pdf": {
+      "get": {
+        "summary": "Coffee-shop receipt on US Letter. Synthesized.",
+        "tags": [
+          "health:valid",
+          "document_shape:receipt",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/receipt-scanned-noisy-300dpi.pdf": {
+      "get": {
+        "summary": "Receipt rendered as a noisy 300 DPI scan - classic crumpled-receipt OCR target.",
+        "tags": [
+          "health:valid",
+          "document_shape:receipt",
+          "provenance:scanned-noisy",
           "spec:PDF-1.7"
         ],
         "responses": {

@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "site": "pdfbin.net",
   "license_default": "CC0-1.0",
-  "generated_at": "2026-05-12T17:58:49+00:00",
-  "fixture_count": 42,
+  "generated_at": "2026-05-12T18:02:07+00:00",
+  "fixture_count": 51,
   "facet_axes": {
     "health": [
       "valid",
@@ -274,6 +274,29 @@
         }
       },
       "source_script": "generate/builders/access.py:aes256_user"
+    },
+    {
+      "id": "bank-statement-letter-clean",
+      "url": "https://pdfbin.net/bank-statement-letter-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2078,
+      "sha256": "0b4ad2f268c7755e6ab56e7080229a8a7bb4da0540328cd49243cfde5c7df0a4",
+      "page_count": 1,
+      "description": "Bank account statement on US Letter. Synthesized.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "bank-statement",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/documents.py:bank_statement_letter_clean"
     },
     {
       "id": "byte-flipped-mid-stream",
@@ -606,6 +629,29 @@
       "source_script": "generate/builders/form_factor.py:clean_paper_sizes_mixed"
     },
     {
+      "id": "contract-nda-letter-clean",
+      "url": "https://pdfbin.net/contract-nda-letter-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1971,
+      "sha256": "178e2eaa48266f779e3b7a92c62bae4a842fdab9b92089bbaa6187a26a732960",
+      "page_count": 1,
+      "description": "Mutual non-disclosure agreement on US Letter. Synthesized.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "contract-nda",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/documents.py:contract_nda_letter_clean"
+    },
+    {
       "id": "eof-missing",
       "url": "https://pdfbin.net/eof-missing.pdf",
       "added": "2026-05-12",
@@ -629,6 +675,57 @@
       "source_script": "generate/builders/health.py:eof_missing"
     },
     {
+      "id": "fax-cover-letter-clean",
+      "url": "https://pdfbin.net/fax-cover-letter-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2008,
+      "sha256": "dd4822e5cc6d5426cbe1e4a196269abddb51a8ea0054f7dff0b0875c426d9358",
+      "page_count": 1,
+      "description": "Fax cover sheet on US Letter (To/From/Company/Fax/Pages/Date/Re). Synthesized.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "fax-cover-sheet",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/documents.py:fax_cover_letter_clean"
+    },
+    {
+      "id": "fax-cover-letter-scanned-noisy",
+      "url": "https://pdfbin.net/fax-cover-letter-scanned-noisy.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 776786,
+      "sha256": "4185da432bdb4742addc8c180d06df62a1749357492727703f905b9ddc61d28e",
+      "page_count": 1,
+      "description": "Fax cover sheet rendered as a noisy 300 DPI scan - realistic faxed-document case.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "fax-cover-sheet",
+        "provenance": "scanned-noisy",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "scan_quality": {
+          "dpi": 300,
+          "noise": "high",
+          "skew_degrees": 0
+        }
+      },
+      "source_script": "generate/builders/documents.py:fax_cover_letter_scanned_noisy"
+    },
+    {
       "id": "header-truncated",
       "url": "https://pdfbin.net/header-truncated.pdf",
       "added": "2026-05-12",
@@ -650,6 +747,75 @@
         "features": []
       },
       "source_script": "generate/builders/health.py:header_truncated"
+    },
+    {
+      "id": "invoice-letter-clean",
+      "url": "https://pdfbin.net/invoice-letter-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2112,
+      "sha256": "1ada3ace800b3663cdbaee97442d39cf3dee2eb9157978635a8b7915de5293d3",
+      "page_count": 1,
+      "description": "Invoice on US Letter with line items and totals. Synthesized.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "invoice",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/documents.py:invoice_letter_clean"
+    },
+    {
+      "id": "irs-1040-blank",
+      "url": "https://pdfbin.net/irs-1040-blank.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 220237,
+      "sha256": "3d31c226df0d189ced80e039d01cf0f8820c1019681a0f0ca6264de277b7e982",
+      "page_count": 2,
+      "description": "Blank IRS Form 1040, imported verbatim from irs.gov. US federal work, public domain.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "irs-1040",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/documents.py:irs_1040_blank"
+    },
+    {
+      "id": "lab-report-letter-clean",
+      "url": "https://pdfbin.net/lab-report-letter-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2051,
+      "sha256": "050ad01c3d24d3074cff4b41bb4849190cbbf6549d273a350f6a35a6290713ec",
+      "page_count": 1,
+      "description": "Diagnostics lab report on US Letter. Synthesized.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "lab-report",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/documents.py:lab_report_letter_clean"
     },
     {
       "id": "object-generation-mismatch",
@@ -890,6 +1056,57 @@
         }
       },
       "source_script": "generate/builders/access.py:rc4_40_owner"
+    },
+    {
+      "id": "receipt-letter-clean",
+      "url": "https://pdfbin.net/receipt-letter-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1740,
+      "sha256": "a53261b8d20f783f08b9d20c777204c2057776b06810fb458280c30cbe2ca2ec",
+      "page_count": 1,
+      "description": "Coffee-shop receipt on US Letter. Synthesized.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "receipt",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/documents.py:receipt_letter_clean"
+    },
+    {
+      "id": "receipt-scanned-noisy-300dpi",
+      "url": "https://pdfbin.net/receipt-scanned-noisy-300dpi.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 772563,
+      "sha256": "e701ddf2da61debd819cf84b613a4ac82412eb2ee8b5aaf09f624d0316348dd3",
+      "page_count": 1,
+      "description": "Receipt rendered as a noisy 300 DPI scan - classic crumpled-receipt OCR target.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "receipt",
+        "provenance": "scanned-noisy",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "scan_quality": {
+          "dpi": 300,
+          "noise": "high",
+          "skew_degrees": 0
+        }
+      },
+      "source_script": "generate/builders/documents.py:receipt_scanned_noisy_300dpi"
     },
     {
       "id": "scanned-clean-200dpi",
