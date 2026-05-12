@@ -142,7 +142,18 @@
   {{ if and $facets.paper_size $facets.orientation }}
     {{ $related_form = first 6 (where (where (where $catalog.fixtures "facets.paper_size" "eq" $facets.paper_size) "facets.orientation" "eq" $facets.orientation) "id" "ne" $fixture.id) }}
   {{ end }}
-  {{ $has_related := or (gt (len $related_health) 0) (or (gt (len $related_access) 0) (or (gt (len $related_shape) 0) (or (gt (len $related_prov) 0) (or (gt (len $related_spec) 0) (gt (len $related_form) 0))))) }}
+  {{/* Fallback for one-of-a-kind clean fixtures whose form-factor combo has no peers. */}}
+  {{ $related_clean := slice }}
+  {{ $any_related := or (gt (len $related_health) 0) (or (gt (len $related_access) 0) (or (gt (len $related_shape) 0) (or (gt (len $related_prov) 0) (or (gt (len $related_spec) 0) (gt (len $related_form) 0))))) }}
+  {{ if and (not $any_related) (hasPrefix $fixture.id "clean-") }}
+    {{ range $catalog.fixtures }}
+      {{ if and (hasPrefix .id "clean-") (ne .id $fixture.id) }}
+        {{ $related_clean = $related_clean | append . }}
+      {{ end }}
+    {{ end }}
+    {{ $related_clean = first 6 $related_clean }}
+  {{ end }}
+  {{ $has_related := or $any_related (gt (len $related_clean) 0) }}
   {{ if $has_related }}
     <section class="mt-5">
       <h2 class="section-head">
@@ -211,6 +222,17 @@
           <table class="table table-borderless align-top fixtures mb-0">
             <tbody>
               {{ range $related_form }}{{ partial "fixture-row.html" . }}{{ end }}
+            </tbody>
+          </table>
+        </div>
+      {{ end }}
+
+      {{ if gt (len $related_clean) 0 }}
+        <h3 class="related-group-head">Other clean PDFs</h3>
+        <div class="table-responsive mb-3">
+          <table class="table table-borderless align-top fixtures mb-0">
+            <tbody>
+              {{ range $related_clean }}{{ partial "fixture-row.html" . }}{{ end }}
             </tbody>
           </table>
         </div>
