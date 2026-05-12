@@ -34,7 +34,7 @@ old one stays available, marked status: deprecated in catalog.json.
 Encrypted PDFs use owner="ownerpass", user="userpass" unless an encrypted
 fixture's catalog entry says otherwise.
 
-Total fixtures: 9.
+Total fixtures: 13.
 
 ## License
 

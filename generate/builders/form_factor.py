@@ -32,7 +32,10 @@ def _draw_page(c: canvas.Canvas, w: float, h: float, page_no: int, label: str) -
 
 def _write_pdf(path: Path, pages: list[tuple[float, float, str]], label: str) -> None:
     """`pages` is a list of (width, height, orientation_hint) tuples."""
-    c = canvas.Canvas(str(path), pageCompression=1)
+    # invariant=1 pins reportlab's CreationDate/ModDate/internal IDs so the
+    # saved bytes are byte-stable across regenerations - required for the
+    # CI no-drift check.
+    c = canvas.Canvas(str(path), pageCompression=1, invariant=1)
     c.setTitle(f"pdfbin.net fixture: {label}")
     c.setAuthor("pdfbin.net")
     c.setSubject("CC0 test fixture")

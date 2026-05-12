@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "site": "pdfbin.net",
   "license_default": "CC0-1.0",
-  "generated_at": "2026-05-12T16:46:49+00:00",
-  "fixture_count": 9,
+  "generated_at": "2026-05-12T17:30:47+00:00",
+  "fixture_count": 13,
   "facet_axes": {
     "health": [
       "valid",
@@ -72,8 +72,8 @@
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 55916,
-      "sha256": "ccb5a60124e8ece0f47e8eed7b0c05080d0f0beb22d8f4d4fe7fee0933f9e88c",
+      "size_bytes": 55977,
+      "sha256": "750fd7035cc89cbe0cd07e70a3d4f0a1c336192b092f4078c5a9f9450d31d1e3",
       "page_count": 100,
       "description": "Clean US Letter, 100 portrait pages.",
       "facets": {
@@ -89,14 +89,89 @@
       "source_script": "generate/builders/form_factor.py:clean_100_pages"
     },
     {
+      "id": "clean-10mb",
+      "url": "https://pdfbin.net/clean-10mb.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 10001617,
+      "sha256": "82e8228fe03afd7dcdaa8cf46a5c1aa47973d57953c7c6e772241af9c6e3dc65",
+      "page_count": 1,
+      "description": "Clean US Letter PDF padded to approximately 10 MB via an attached random-bytes file (embedded-file feature).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [
+          "embedded-file"
+        ]
+      },
+      "source_script": "generate/builders/size.py:clean_10mb"
+    },
+    {
+      "id": "clean-1mb",
+      "url": "https://pdfbin.net/clean-1mb.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 998870,
+      "sha256": "dadac1125da1179222512b0813ceb885fa1946404a5482dd06118cb3f1784cd0",
+      "page_count": 1,
+      "description": "Clean US Letter PDF padded to approximately 1 MB via an attached random-bytes file (embedded-file feature).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [
+          "embedded-file"
+        ]
+      },
+      "source_script": "generate/builders/size.py:clean_1mb"
+    },
+    {
+      "id": "clean-25mb",
+      "url": "https://pdfbin.net/clean-25mb.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 25006194,
+      "sha256": "a282fcf51adeb6621966a10956ec36de5bd8b4d8829dc65ecfc9fd2b80a2709c",
+      "page_count": 1,
+      "description": "Clean US Letter PDF padded to approximately 25 MB via an attached random-bytes file (embedded-file feature).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [
+          "embedded-file"
+        ]
+      },
+      "source_script": "generate/builders/size.py:clean_25mb"
+    },
+    {
       "id": "clean-500-pages",
       "url": "https://pdfbin.net/clean-500-pages.pdf",
       "added": "2026-05-12",
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 277606,
-      "sha256": "b311ba7fe67ed766d458d56153e2a5c7ef08fb00297fd35c281b7c911659cc45",
+      "size_bytes": 277667,
+      "sha256": "d61cc6ea9ab6e8da0917880349cf171bc15be1f2c1d2b50aefea663d822e9c40",
       "page_count": 500,
       "description": "Clean US Letter, 500 portrait pages.",
       "facets": {
@@ -112,14 +187,39 @@
       "source_script": "generate/builders/form_factor.py:clean_500_pages"
     },
     {
+      "id": "clean-50mb",
+      "url": "https://pdfbin.net/clean-50mb.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 50013824,
+      "sha256": "6663e9c1d6121b70cc37fb8fa282419eafbcbf8ab64fb1a1cc33e8defa017bb3",
+      "page_count": 1,
+      "description": "Clean US Letter PDF padded to approximately 50 MB via an attached random-bytes file (embedded-file feature).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [
+          "embedded-file"
+        ]
+      },
+      "source_script": "generate/builders/size.py:clean_50mb"
+    },
+    {
       "id": "clean-a4-1page",
       "url": "https://pdfbin.net/clean-a4-1page.pdf",
       "added": "2026-05-12",
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 1498,
-      "sha256": "368104a92c8c09e1c0c2de3ede63bbbe2da010ac4749110dad95529239fbcada",
+      "size_bytes": 1559,
+      "sha256": "cbb7bdf0918b895234a9f5702e806e35dab8b3ef5539ba3cfa49498fc8aae4d5",
       "page_count": 1,
       "description": "Clean DIN A4 (210x297mm), single portrait page, body text.",
       "facets": {
@@ -141,8 +241,8 @@
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 2612,
-      "sha256": "17a987c01589a2f1fa5f351b8dc6b8e303e9ba87ce3f505e5ff7c664eedc84c8",
+      "size_bytes": 2673,
+      "sha256": "ae22562031aae0f5b857f463c270a27cf0df0074ba8368325a2d867fb77a5771",
       "page_count": 3,
       "description": "Clean DIN A4, three portrait pages.",
       "facets": {
@@ -164,8 +264,8 @@
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 1507,
-      "sha256": "ee376a31c9ce4e5190f3c2e5240cf3f6b9609100d1b71081b19639f776b9f4fc",
+      "size_bytes": 1568,
+      "sha256": "d8e8c30adc3f9a04af914533626961627a4ac2866e7b04561b4e66c61d8a721b",
       "page_count": 1,
       "description": "Clean JIS B5 (182x257mm) - not ISO B5. Single portrait page.",
       "facets": {
@@ -187,8 +287,8 @@
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 1489,
-      "sha256": "aeb540c9a0ed797c52711c72b7f6672f0f308045834d6b0a3f65540c094650fd",
+      "size_bytes": 1550,
+      "sha256": "52eb9b330d18ce748fb87bdce8a68ab5ce237954cd3df914c96469e6a691601e",
       "page_count": 1,
       "description": "Clean US Letter (8.5x11in), single portrait page, body text.",
       "facets": {
@@ -210,8 +310,8 @@
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 2586,
-      "sha256": "d013fd92b94497bd4dfbf7fc528a05ebeeefcdb68a0e09a19b386fdb633f0841",
+      "size_bytes": 2647,
+      "sha256": "b7329ca30567cb79facbb43f2fe69a5b9feae0cbf74239d03c86c4336c72ed0d",
       "page_count": 3,
       "description": "Clean US Letter, three portrait pages.",
       "facets": {
@@ -233,8 +333,8 @@
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 3712,
-      "sha256": "5801f09e81c94448e686a75d23d04a97927f83aa9b2968a508e3ad5f519fbf22",
+      "size_bytes": 3773,
+      "sha256": "62e0a2b81f17c1d47d73f4cf2a4019f0aa824f022e3922521b93dd92f471dcf7",
       "page_count": 5,
       "description": "US Letter, alternating portrait and landscape across 5 pages.",
       "facets": {
@@ -256,8 +356,8 @@
       "status": "current",
       "superseded_by": null,
       "license": "CC0-1.0",
-      "size_bytes": 2638,
-      "sha256": "b8d1b374e5f854db8aacbde167f3c766a312956c98814f38a164aab1b11578f3",
+      "size_bytes": 2699,
+      "sha256": "3ca488f718eaacc304324fd412d0e686f64c9dd6d68669c71b61319e4c2f941b",
       "page_count": 3,
       "description": "Mixed paper sizes: A4, US Letter, and JIS B5 in one document.",
       "facets": {

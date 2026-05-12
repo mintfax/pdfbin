@@ -39,9 +39,105 @@
         }
       }
     },
+    "/clean-10mb.pdf": {
+      "get": {
+        "summary": "Clean US Letter PDF padded to approximately 10 MB via an attached random-bytes file (embedded-file feature).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-1mb.pdf": {
+      "get": {
+        "summary": "Clean US Letter PDF padded to approximately 1 MB via an attached random-bytes file (embedded-file feature).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-25mb.pdf": {
+      "get": {
+        "summary": "Clean US Letter PDF padded to approximately 25 MB via an attached random-bytes file (embedded-file feature).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/clean-500-pages.pdf": {
       "get": {
         "summary": "Clean US Letter, 500 portrait pages.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-50mb.pdf": {
+      "get": {
+        "summary": "Clean US Letter PDF padded to approximately 50 MB via an attached random-bytes file (embedded-file feature).",
         "tags": [
           "health:valid",
           "document_shape:blank",
