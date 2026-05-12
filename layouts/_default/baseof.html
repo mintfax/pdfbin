@@ -54,6 +54,39 @@
       });
     });
 
+    // Row-as-link: clicking anywhere on a [data-row-href] row navigates to
+    // that URL, except when the click lands on a real link or button (so the
+    // copy button and existing anchors keep working unchanged).
+    (function () {
+      function targetIsInteractive(el, row) {
+        for (var n = el; n && n !== row; n = n.parentNode) {
+          if (n.nodeType !== 1) continue;
+          var tag = n.tagName;
+          if (tag === 'A' || tag === 'BUTTON' || tag === 'INPUT' ||
+              tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'LABEL') {
+            return true;
+          }
+        }
+        return false;
+      }
+      document.addEventListener('click', function (e) {
+        if (e.defaultPrevented || e.button !== 0) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var row = e.target.closest('[data-row-href]');
+        if (!row) return;
+        if (targetIsInteractive(e.target, row)) return;
+        if (window.getSelection && String(window.getSelection())) return;
+        window.location.href = row.getAttribute('data-row-href');
+      });
+      document.addEventListener('auxclick', function (e) {
+        if (e.button !== 1) return;
+        var row = e.target.closest('[data-row-href]');
+        if (!row) return;
+        if (targetIsInteractive(e.target, row)) return;
+        window.open(row.getAttribute('data-row-href'), '_blank', 'noopener');
+      });
+    })();
+
     // Tab switching for [data-pdfbin-tabs] containers (homepage quick-start).
     // Hand-rolled to avoid pulling in Bootstrap's full JS bundle.
     (function () {

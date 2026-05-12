@@ -118,6 +118,7 @@ table.fixtures tbody td {
   vertical-align: top;
   border-bottom: 1px solid var(--bs-border-color);
 }
+table.fixtures tbody tr[data-row-href] { cursor: pointer; }
 table.fixtures tbody tr:hover td { background: #fbf9f3; }
 table.fixtures tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--bs-primary); }
 table.fixtures .id { font-family: var(--bs-font-monospace); }
