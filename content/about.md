@@ -29,3 +29,11 @@ available, marked `status: deprecated` in `catalog.json`.
 
 Source code at [github.com/mintfax/pdfbin](https://github.com/mintfax/pdfbin).
 Issues and contributions welcome.
+
+## Who built this
+
+pdfbin.net is built and maintained by
+[mintfax](https://mintfax.com) - a developer-first fax API.
+Mintfax's sandbox documentation points at these PDFs; making the catalog
+public costs us nothing and spares everyone else the
+right-click-save-from-github dance.
