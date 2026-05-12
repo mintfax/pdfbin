@@ -10,16 +10,43 @@
   </main>
   {{ partial "footer.html" . }}
   <script>
-    // Copy-to-clipboard: any element with [data-copy="..."] copies its value on click.
+    // Copy-to-clipboard: any element with [data-copy="..."] copies its value
+    // on click. Uses navigator.clipboard on HTTPS, falls back to a hidden
+    // <textarea> + document.execCommand('copy') on HTTP / older browsers.
+    function pdfbinCopy(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise(function (resolve, reject) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        try {
+          var ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          ok ? resolve() : reject(new Error('execCommand returned false'));
+        } catch (err) {
+          document.body.removeChild(ta);
+          reject(err);
+        }
+      });
+    }
     document.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-copy]');
       if (!btn) return;
       var text = btn.getAttribute('data-copy');
       if (!text) return;
-      navigator.clipboard.writeText(text).then(function () {
-        var orig = btn.textContent;
+      var orig = btn.textContent;
+      pdfbinCopy(text).then(function () {
         btn.textContent = 'copied';
         btn.classList.add('btn-copied');
+      }).catch(function () {
+        btn.textContent = 'copy failed';
+      }).finally(function () {
         setTimeout(function () {
           btn.textContent = orig;
           btn.classList.remove('btn-copied');
