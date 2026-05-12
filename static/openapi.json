@@ -15,6 +15,126 @@
     }
   ],
   "paths": {
+    "/aes128-owner.pdf": {
+      "get": {
+        "summary": "AES-128 (revision 4) with owner password only.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aes128-user.pdf": {
+      "get": {
+        "summary": "AES-128 (revision 4) with user password.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aes256-both.pdf": {
+      "get": {
+        "summary": "AES-256 with both owner and user passwords set distinctly.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aes256-owner.pdf": {
+      "get": {
+        "summary": "AES-256 with owner password only. Open password is empty.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aes256-user.pdf": {
+      "get": {
+        "summary": "AES-256 with user (open) password. Owner password also set.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/byte-flipped-mid-stream.pdf": {
       "get": {
         "summary": "One byte XOR-flipped mid-content-stream. Likely renders pages with garbage.",
@@ -404,6 +524,54 @@
         "summary": "First object's header says generation 1; xref says generation 0.",
         "tags": [
           "health:corrupt-object-generation-mismatch",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rc4-128-owner.pdf": {
+      "get": {
+        "summary": "Legacy RC4-128 (revision 3) with owner password only.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rc4-40-owner.pdf": {
+      "get": {
+        "summary": "Legacy RC4-40 (revision 2) - common in older documents.",
+        "tags": [
+          "health:valid",
           "document_shape:blank",
           "provenance:digital-native",
           "spec:PDF-1.7"

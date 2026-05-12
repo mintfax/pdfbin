@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "site": "pdfbin.net",
   "license_default": "CC0-1.0",
-  "generated_at": "2026-05-12T17:34:03+00:00",
-  "fixture_count": 20,
+  "generated_at": "2026-05-12T17:36:02+00:00",
+  "fixture_count": 27,
   "facet_axes": {
     "health": [
       "valid",
@@ -65,6 +65,141 @@
     ]
   },
   "fixtures": [
+    {
+      "id": "aes128-owner",
+      "url": "https://pdfbin.net/aes128-owner.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2216,
+      "sha256": "502742129fc94fdd39eb14636a702aa22a9bd6197b54525d04f794f2de245d4d",
+      "page_count": 1,
+      "description": "AES-128 (revision 4) with owner password only.",
+      "facets": {
+        "health": "valid",
+        "access": "encrypted-aes128-owner",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "passwords": {
+          "owner": "ownerpass",
+          "user": null
+        }
+      },
+      "source_script": "generate/builders/access.py:aes128_owner"
+    },
+    {
+      "id": "aes128-user",
+      "url": "https://pdfbin.net/aes128-user.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2216,
+      "sha256": "45349db265ce70543983d706d2a8fd1f5cf1e26e580030ee3106a5f41fb15ba8",
+      "page_count": 1,
+      "description": "AES-128 (revision 4) with user password.",
+      "facets": {
+        "health": "valid",
+        "access": "encrypted-aes128-user",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "passwords": {
+          "owner": "ownerpass",
+          "user": "userpass"
+        }
+      },
+      "source_script": "generate/builders/access.py:aes128_user"
+    },
+    {
+      "id": "aes256-both",
+      "url": "https://pdfbin.net/aes256-both.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2530,
+      "sha256": "d619f2bce55b0cd75d803f1e4040789e19428d38adb5e0b7e9d458b1bec56b9c",
+      "page_count": 1,
+      "description": "AES-256 with both owner and user passwords set distinctly.",
+      "facets": {
+        "health": "valid",
+        "access": "encrypted-aes256-both",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "passwords": {
+          "owner": "ownerpass",
+          "user": "userpass"
+        }
+      },
+      "source_script": "generate/builders/access.py:aes256_both"
+    },
+    {
+      "id": "aes256-owner",
+      "url": "https://pdfbin.net/aes256-owner.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2530,
+      "sha256": "e453bc1baa20e20046cf55e4b0a369f9640262b3495acf4869753c5cef69eaeb",
+      "page_count": 1,
+      "description": "AES-256 with owner password only. Open password is empty.",
+      "facets": {
+        "health": "valid",
+        "access": "encrypted-aes256-owner",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "passwords": {
+          "owner": "ownerpass",
+          "user": null
+        }
+      },
+      "source_script": "generate/builders/access.py:aes256_owner"
+    },
+    {
+      "id": "aes256-user",
+      "url": "https://pdfbin.net/aes256-user.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 2530,
+      "sha256": "9941572d4dbab66f3e83bccb361c723e488ea897a412756a43d3d5482a797a52",
+      "page_count": 1,
+      "description": "AES-256 with user (open) password. Owner password also set.",
+      "facets": {
+        "health": "valid",
+        "access": "encrypted-aes256-user",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "passwords": {
+          "owner": "ownerpass",
+          "user": "userpass"
+        }
+      },
+      "source_script": "generate/builders/access.py:aes256_user"
+    },
     {
       "id": "byte-flipped-mid-stream",
       "url": "https://pdfbin.net/byte-flipped-mid-stream.pdf",
@@ -463,6 +598,60 @@
         "features": []
       },
       "source_script": "generate/builders/health.py:object_generation_mismatch"
+    },
+    {
+      "id": "rc4-128-owner",
+      "url": "https://pdfbin.net/rc4-128-owner.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1701,
+      "sha256": "c71c8ffae19605a701f7fcde87bcece4a61af076e0019552abcedbfb525fcf9d",
+      "page_count": 1,
+      "description": "Legacy RC4-128 (revision 3) with owner password only.",
+      "facets": {
+        "health": "valid",
+        "access": "encrypted-rc4-128-owner",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "passwords": {
+          "owner": "ownerpass",
+          "user": null
+        }
+      },
+      "source_script": "generate/builders/access.py:rc4_128_owner"
+    },
+    {
+      "id": "rc4-40-owner",
+      "url": "https://pdfbin.net/rc4-40-owner.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1698,
+      "sha256": "88ef2f75d5eb4456b588ff70692df5776ec7e63ab38cf436fc4269c0334d58f1",
+      "page_count": 1,
+      "description": "Legacy RC4-40 (revision 2) - common in older documents.",
+      "facets": {
+        "health": "valid",
+        "access": "encrypted-rc4-40-owner",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": [],
+        "passwords": {
+          "owner": "ownerpass",
+          "user": null
+        }
+      },
+      "source_script": "generate/builders/access.py:rc4_40_owner"
     },
     {
       "id": "stream-length-mismatch",
