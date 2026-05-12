@@ -121,18 +121,8 @@ const blob = await (await fetch(url)).blob();
     </div>
   </section>
 
-  {{/* ===== DISCOVERY ===== */}}
-  <section class="block mt-5">
-    <h2 class="section-title"><span class="num">&sect;6</span><span class="axis">Discovery</span></h2>
-    <p class="text-body-secondary mb-3">
-      Flat URLs, immutable bytes, versioning in the catalog. Every fixture has a per-PDF preview page at <code>/preview/&lt;id&gt;/</code>.
-    </p>
-    <ul class="list-unstyled font-monospace small">
-      <li><a href="{{ "catalog.json" | relURL }}">/catalog.json</a> - typed catalog with facets, sha256, lifecycle per PDF</li>
-      <li><a href="{{ "openapi.json" | relURL }}">/openapi.json</a> - OpenAPI 3.1 spec with every fixture as a GET endpoint</li>
-      <li><a href="{{ "llms.txt" | relURL }}">/llms.txt</a> - AI-agent summary</li>
-    </ul>
-  </section>
+  {{/* Discovery surfaces (catalog.json / openapi.json / llms.txt) are in the
+       top nav menu - no separate section here. */}}
 
 </div>
 {{ end }}
