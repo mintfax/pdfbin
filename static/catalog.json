@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "site": "pdfbin.net",
   "license_default": "CC0-1.0",
-  "generated_at": "2026-05-12T17:30:47+00:00",
-  "fixture_count": 13,
+  "generated_at": "2026-05-12T17:34:03+00:00",
+  "fixture_count": 20,
   "facet_axes": {
     "health": [
       "valid",
@@ -65,6 +65,29 @@
     ]
   },
   "fixtures": [
+    {
+      "id": "byte-flipped-mid-stream",
+      "url": "https://pdfbin.net/byte-flipped-mid-stream.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1533,
+      "sha256": "c7138418376ec12787cfa35af0f19546e29afca04b9c518f806d79514495ecaa",
+      "page_count": 1,
+      "description": "One byte XOR-flipped mid-content-stream. Likely renders pages with garbage.",
+      "facets": {
+        "health": "corrupt-byte-flipped",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/health.py:byte_flipped_mid_stream"
+    },
     {
       "id": "clean-100-pages",
       "url": "https://pdfbin.net/clean-100-pages.pdf",
@@ -371,6 +394,144 @@
         "features": []
       },
       "source_script": "generate/builders/form_factor.py:clean_paper_sizes_mixed"
+    },
+    {
+      "id": "eof-missing",
+      "url": "https://pdfbin.net/eof-missing.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1528,
+      "sha256": "e706e414b019ebb623757dda5ca2a65f362e6321df648a15062cf845f034fdb5",
+      "page_count": 1,
+      "description": "%%EOF marker stripped. Parsers that key on it cannot find the end.",
+      "facets": {
+        "health": "corrupt-eof-missing",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/health.py:eof_missing"
+    },
+    {
+      "id": "header-truncated",
+      "url": "https://pdfbin.net/header-truncated.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1524,
+      "sha256": "ff0e6f17dcdfb4215045c5af62645cf1ea945bd0eeabea77b1f3daa3eb937bb7",
+      "page_count": 1,
+      "description": "First line (%PDF-1.7) removed. Parsers that key on the header fail to detect a PDF.",
+      "facets": {
+        "health": "corrupt-header-truncated",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/health.py:header_truncated"
+    },
+    {
+      "id": "object-generation-mismatch",
+      "url": "https://pdfbin.net/object-generation-mismatch.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1533,
+      "sha256": "86d86664fa907ec7a54697e48c9f51d903b2c5ad5b7d33a5c4051e0b104fe2ae",
+      "page_count": 1,
+      "description": "First object's header says generation 1; xref says generation 0.",
+      "facets": {
+        "health": "corrupt-object-generation-mismatch",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/health.py:object_generation_mismatch"
+    },
+    {
+      "id": "stream-length-mismatch",
+      "url": "https://pdfbin.net/stream-length-mismatch.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1533,
+      "sha256": "2a241452c29344675007cf4d69e49e21919ee17394e408844edaaefef535b1cd",
+      "page_count": 1,
+      "description": "One stream object's /Length is overstated by 99 bytes.",
+      "facets": {
+        "health": "corrupt-stream-length-mismatch",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/health.py:stream_length_mismatch"
+    },
+    {
+      "id": "trailer-missing",
+      "url": "https://pdfbin.net/trailer-missing.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1338,
+      "sha256": "56d9eed776f5ed23a53377ec802a7b63d5583de8d75aed0779082854ea8a4406",
+      "page_count": 1,
+      "description": "Trailer dictionary removed; startxref present but points to nothing useful.",
+      "facets": {
+        "health": "corrupt-trailer-missing",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/health.py:trailer_missing"
+    },
+    {
+      "id": "xref-truncated",
+      "url": "https://pdfbin.net/xref-truncated.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1517,
+      "sha256": "b3dd5100a9f3c51e4c0864efa780eb16ccd56207158b3725854d2e11ab086fd5",
+      "page_count": 1,
+      "description": "PDF byte-truncated at the start of the xref table. Parsers without xref-recovery will fail.",
+      "facets": {
+        "health": "corrupt-xref-truncated",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/health.py:xref_truncated"
     }
   ]
 }

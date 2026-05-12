@@ -20,6 +20,7 @@ from generate.catalog import emit_catalog, emit_llms_txt, emit_openapi
 BUILDER_MODULES: list[str] = [
     "generate.builders.form_factor",
     "generate.builders.size",
+    "generate.builders.health",
 ]
 
 

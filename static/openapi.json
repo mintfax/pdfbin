@@ -15,6 +15,30 @@
     }
   ],
   "paths": {
+    "/byte-flipped-mid-stream.pdf": {
+      "get": {
+        "summary": "One byte XOR-flipped mid-content-stream. Likely renders pages with garbage.",
+        "tags": [
+          "health:corrupt-byte-flipped",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/clean-100-pages.pdf": {
       "get": {
         "summary": "Clean US Letter, 100 portrait pages.",
@@ -308,6 +332,150 @@
         "summary": "Mixed paper sizes: A4, US Letter, and JIS B5 in one document.",
         "tags": [
           "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eof-missing.pdf": {
+      "get": {
+        "summary": "%%EOF marker stripped. Parsers that key on it cannot find the end.",
+        "tags": [
+          "health:corrupt-eof-missing",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/header-truncated.pdf": {
+      "get": {
+        "summary": "First line (%PDF-1.7) removed. Parsers that key on the header fail to detect a PDF.",
+        "tags": [
+          "health:corrupt-header-truncated",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/object-generation-mismatch.pdf": {
+      "get": {
+        "summary": "First object's header says generation 1; xref says generation 0.",
+        "tags": [
+          "health:corrupt-object-generation-mismatch",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stream-length-mismatch.pdf": {
+      "get": {
+        "summary": "One stream object's /Length is overstated by 99 bytes.",
+        "tags": [
+          "health:corrupt-stream-length-mismatch",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trailer-missing.pdf": {
+      "get": {
+        "summary": "Trailer dictionary removed; startxref present but points to nothing useful.",
+        "tags": [
+          "health:corrupt-trailer-missing",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/xref-truncated.pdf": {
+      "get": {
+        "summary": "PDF byte-truncated at the start of the xref table. Parsers without xref-recovery will fail.",
+        "tags": [
+          "health:corrupt-xref-truncated",
           "document_shape:blank",
           "provenance:digital-native",
           "spec:PDF-1.7"
