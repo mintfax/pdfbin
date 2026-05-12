@@ -1,5 +1,6 @@
 ---
 title: "About - pdfbin.net"
+description: "Why pdfbin.net exists: a CC0 library of test PDFs at stable flat URLs you can pin in CI suites, with a typed multi-axis catalog."
 layout: text-page
 ---
 

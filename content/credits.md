@@ -1,5 +1,6 @@
 ---
 title: "Credits - pdfbin.net"
+description: "Source-asset provenance for imported PDFs (the IRS Form 1040 from irs.gov) and font credits (IBM Plex Sans and Mono)."
 layout: text-page
 ---
 

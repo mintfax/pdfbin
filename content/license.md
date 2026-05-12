@@ -1,5 +1,6 @@
 ---
 title: "License - pdfbin.net"
+description: "License terms for pdfbin.net: all PDFs released under CC0-1.0 (public domain); site and pipeline code under MIT."
 layout: text-page
 ---
 

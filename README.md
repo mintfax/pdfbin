@@ -60,14 +60,13 @@ System dependencies (also handled by the CI Dockerfile):
 CI fails if `git diff --exit-code static/ content/preview/` shows drift after
 a regenerate. Regenerate locally and commit.
 
-Two- and three- way branch flow:
+Single-branch flow:
 
-- `dev` is the default branch. All work happens here. Pushes trigger the
-  `build` workflow (pytest, pipeline drift check, Hugo smoke build).
-- `production` is the deploy target. Pushes trigger the `deploy` workflow
-  to build with Hugo and publish to GitHub Pages.
-- Caddy at `https://pdfbin.example.dev` serves `./public/` locally for
-  dev previews. Rebuild with `hugo --minify` and the change is live.
+- `main` is the default branch. Every push triggers both the `build`
+  workflow (pytest, catalog-shape check, Hugo smoke build) and the
+  `deploy` workflow (Hugo build + publish to GitHub Pages).
+- Caddy at `https://pdfbin.example.dev` serves `./public/` locally
+  for dev previews. Rebuild with `hugo --minify` and the change is live.
 
 Note on regeneration semantics:
 

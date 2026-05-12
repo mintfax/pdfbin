@@ -1,7 +1,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ .Title }}</title>
-<meta name="description" content="{{ with .Params.description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+{{- $desc := .Params.description -}}
+{{- if not $desc -}}
+  {{- if eq .Kind "404" -}}
+    {{- $desc = "Page not found on pdfbin.net - the PDF ID may have a typo. Browse the catalog or check /catalog.json for canonical IDs." -}}
+  {{- else -}}
+    {{- $desc = .Site.Params.description -}}
+  {{- end -}}
+{{- end -}}
+<meta name="description" content="{{ $desc }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">

@@ -15,8 +15,8 @@ See `docs/superpowers/specs/2026-05-12-pdfbin-net-design.md` for the design.
   by Hugo to materialize per-PDF preview pages). CI fails if
   `git diff --exit-code static/ content/preview/` shows drift after a
   regenerate.
-- Two-branch flow. `dev` is the default branch; pushing to `production`
-  triggers GH Pages deploy.
+- Single-branch flow. `main` is the default branch; every push triggers
+  both the build verification and the GH Pages deploy.
 - Fixtures are immutable. Never change the bytes at an existing `/<id>.pdf`.
   If a fixture is wrong, add a new ID and mark the old one
   `"status": "deprecated"` in catalog.json with a `superseded_by` pointer.
