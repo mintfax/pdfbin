@@ -1,0 +1,97 @@
+{{ define "main" }}
+<div class="container py-4 py-md-5" style="max-width: 1180px;">
+
+  {{/* ===== 404 HERO ===== */}}
+  <section class="row align-items-end gx-5 gy-3 pt-3 pb-4 border-bottom">
+    <div class="col-auto">
+      <div class="code-404">404</div>
+    </div>
+    <div class="col">
+      <div class="font-monospace text-body-tertiary mb-1" style="font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;">status</div>
+      <div class="attempted-id mb-2">PDF not in catalog</div>
+      <p class="text-body-secondary mb-0" style="max-width: 60ch;">
+        No PDF is served at this URL. IDs are case-sensitive and end in <code>.pdf</code>. The full index lives at <a href="{{ "" | relURL }}" class="link-body-emphasis">pdfbin.net</a>; the machine-readable manifest is <a href="{{ "catalog.json" | relURL }}" class="link-body-emphasis">/catalog.json</a>.
+      </p>
+    </div>
+  </section>
+
+  {{/* ===== WHY YOU MIGHT BE HERE ===== */}}
+  <section class="mt-5">
+    <h2 class="section-head mb-3">
+      <span class="text-warning-emphasis">&sect;A</span><span class="axis">Why you might be here</span>
+    </h2>
+    <ul class="list-group list-group-flush" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+      <li class="list-group-item px-0 py-3">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-4">
+            <span class="badge tag bg-body-tertiary text-body-secondary border">typo in the ID</span>
+          </div>
+          <div class="col-md-8 small text-body-secondary lh-base">
+            IDs are lowercase, hyphen-separated, and always end in <code>.pdf</code>. Common slips: <code>_</code> instead of <code>-</code>, plural where singular is canonical, or a trailing <code>/</code>. Browse <a href="{{ "" | relURL }}" class="link-body-emphasis">the catalog</a> to find the exact ID.
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item px-0 py-3">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-4">
+            <span class="badge tag bg-body-tertiary text-body-secondary border">deprecated fixture</span>
+          </div>
+          <div class="col-md-8 small text-body-secondary lh-base">
+            Deprecated PDFs stay reachable at their original URL <em>forever</em> per the URL-immutability rule. A 404 here means the ID never existed or you've hit a typo - check <a href="{{ "catalog.json" | relURL }}" class="link-body-emphasis">/catalog.json</a> for the canonical record.
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item px-0 py-3">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-4">
+            <span class="badge tag bg-body-tertiary text-body-secondary border">never existed</span>
+          </div>
+          <div class="col-md-8 small text-body-secondary lh-base">
+            Plenty of plausible test PDFs aren't in the catalog yet. The v1 catalog has 51 fixtures; if you need a particular real-world document shape or corruption pattern that isn't covered, the catalog is open to additions in future releases.
+          </div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  {{/* ===== BROWSE ===== */}}
+  <section class="mt-5">
+    <h2 class="section-head mb-3">
+      <span class="text-warning-emphasis">&sect;B</span><span class="axis">Browse the catalog</span>
+    </h2>
+    <ul class="list-group list-group-flush" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+      <li class="list-group-item px-0 py-2">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-5"><a href="{{ "by-form-factor/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-form-factor/</a></div>
+          <div class="col-md-7 small text-body-secondary lh-sm">Canonical clean PDFs - paper sizes, page counts, orientations, byte sizes.</div>
+        </div>
+      </li>
+      <li class="list-group-item px-0 py-2">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-5"><a href="{{ "by-document/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-document/</a></div>
+          <div class="col-md-7 small text-body-secondary lh-sm">Real-world document shapes - invoices, IRS forms, lab reports, fax covers.</div>
+        </div>
+      </li>
+      <li class="list-group-item px-0 py-2">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-5"><a href="{{ "by-spec/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-spec/</a></div>
+          <div class="col-md-7 small text-body-secondary lh-sm">Conformance references - PDF 1.4 through 2.0, PDF/A levels.</div>
+        </div>
+      </li>
+      <li class="list-group-item px-0 py-2">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-5"><a href="{{ "by-provenance/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-provenance/</a></div>
+          <div class="col-md-7 small text-body-secondary lh-sm">PDFs by origin - digital-native vs scanned (clean / noisy / skewed).</div>
+        </div>
+      </li>
+      <li class="list-group-item px-0 py-2">
+        <div class="row g-3 align-items-baseline">
+          <div class="col-md-5"><a href="{{ "by-fault/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-fault/</a></div>
+          <div class="col-md-7 small text-body-secondary lh-sm">PDFs damaged in known ways - one documented corruption each.</div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+</div>
+{{ end }}
