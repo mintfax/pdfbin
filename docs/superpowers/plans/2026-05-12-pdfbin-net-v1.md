@@ -2947,9 +2947,15 @@ The claude.ai/design output for the homepage (Bootstrap-converted) lands here. R
 - Create: `layouts/partials/fixture-row.html`
 - Modify: `assets/css/overrides.css` (add any page-specific identity styles from the design)
 
-- [ ] **Step 1: Save the claude.ai/design homepage output**
+- [ ] **Step 1: Locate the claude.ai/design homepage output**
 
-Save the design's HTML+CSS bundle for the homepage into a working directory outside the repo (e.g., `~/Downloads/pdfbin-design-homepage/`). Confirm it uses Bootstrap classes (`container`, `row`, `col-*`, utility classes) and includes IBM Plex fonts.
+URL: https://api.anthropic.com/v1/design/h/66__iqkdRckb14aLJEZH_w?open_file=pdfbin-bootstrap.html
+
+The bundle has been fetched and extracted to `/tmp/pdfbin-design-homepage/pdfbin-net/project/pdfbin-bootstrap.html` (1143 lines). It is fully Bootstrap-converted: container `max-width: 1180px`, header row with brand + tagline, quick-start as three `col-lg-4` cards, each catalog section as a `<table class="table table-hover fixture-table">` with columns ID / kind-badge / description / URL+copy-button. Mobile-collapsible URL column. Inline `<style>` block defines Bootstrap token overrides (palette + typography) and page-specific component styles.
+
+**Divergences to fix when vendoring:**
+- One mock fixture URL on the homepage uses `/f/<id>.pdf`. Use flat `/<id>.pdf` per our spec - the preview design already uses flat, so this is just a stray.
+- The "kind" column groups fixtures into badges like "structural" / "scan" / "encryption". We don't have a "kind" facet axis. Map this column to `facets.health` (or compose from `facets.health` + `facets.document_shape` + `facets.provenance` based on which is the fixture's distinguishing axis).
 
 - [ ] **Step 2: Identify the templatable regions**
 
@@ -3250,6 +3256,14 @@ Expected: PASS.
 
 Vendor the per-PDF preview design (the second claude.ai/design output). Bind the design's data blocks to a single `$fixture` looked up from catalog.json by `fixture_id`.
 
+URL: https://api.anthropic.com/v1/design/h/I636YgbxkG6Dvl_gKmBkGg?open_file=pdfbin-preview.html
+
+The bundle is at `/tmp/pdfbin-design-preview/pdfbin-net/project/pdfbin-preview.html` (572 lines). Structure: same chrome as homepage (container 1180px max, header row); main content is a `row g-4` with the embedded PDF on `col-lg-7` and a metadata `card panel` on `col-lg-5`. Metadata uses `<dl>` with facet badges: status `bg-success-subtle text-success-emphasis`, health-corrupt and tags `bg-warning-subtle text-warning-emphasis`, neutral facets `bg-body-tertiary text-body-secondary`. Download CTA `btn btn-primary btn-download`. "Related" section uses `row g-3` per related PDF with `col-md-5` (id) and `col-md-7` (description).
+
+**Divergences to fix when vendoring:**
+- Mock data uses facet values that don't exist in our spec: `corrupt-truncated-eof` (we have `corrupt-eof-missing`), `synthesized` (we have `digital-native`). Map mock badges to our actual `facets.*` values.
+- Mock URL is `pdfbin.net/truncated-eof-001.pdf` - keep the flat structure but our IDs are like `xref-truncated.pdf`, not `truncated-eof-001.pdf`.
+
 ```html
 {{ define "main" }}
 {{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
@@ -3411,9 +3425,11 @@ The third claude.ai/design output (text-page template) lands here. Drives `/abou
 - Create: `layouts/text-page.html`
 - Modify: `assets/css/overrides.css` (append any text-page-specific styles)
 
-- [ ] **Step 1: Save the claude.ai/design text-page output**
+- [ ] **Step 1: Locate the claude.ai/design text-page output**
 
-Save the design's HTML+CSS for the text-page template into a working directory outside the repo. Confirm it's Bootstrap-converted.
+URL: https://api.anthropic.com/v1/design/h/zCrsUKkSS8pv5iVbX08M1g?open_file=pdfbin-about.html
+
+The bundle is at `/tmp/pdfbin-design-about/pdfbin-net/project/pdfbin-about.html` (454 lines). Structure: same container/header chrome as homepage and preview; single-column prose body with reading-width content; footer row at the bottom. Defines `--pb-paper`, `--pb-soft`, `--pb-accent`, `--pb-rule` prose-specific tokens on top of the shared Bootstrap overrides. Uses `bs-body-font-size: 1rem` and `line-height: 1.6` (slightly larger than the homepage's 0.9375rem for prose comfort).
 
 - [ ] **Step 2: Write `layouts/text-page.html`**
 
