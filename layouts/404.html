@@ -55,44 +55,63 @@
     </ul>
   </section>
 
-  {{/* ===== BROWSE ===== */}}
-  <section class="mt-5">
-    <h2 class="section-head mb-3">
-      <span class="text-warning-emphasis">&sect;B</span><span class="axis">Browse the catalog</span>
-    </h2>
-    <ul class="list-group list-group-flush" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
-      <li class="list-group-item px-0 py-2">
-        <div class="row g-3 align-items-baseline">
-          <div class="col-md-5"><a href="{{ "by-form-factor/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-form-factor/</a></div>
-          <div class="col-md-7 small text-body-secondary lh-sm">Canonical clean PDFs - paper sizes, page counts, orientations, byte sizes.</div>
-        </div>
-      </li>
-      <li class="list-group-item px-0 py-2">
-        <div class="row g-3 align-items-baseline">
-          <div class="col-md-5"><a href="{{ "by-document/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-document/</a></div>
-          <div class="col-md-7 small text-body-secondary lh-sm">Real-world document shapes - invoices, IRS forms, lab reports, fax covers.</div>
-        </div>
-      </li>
-      <li class="list-group-item px-0 py-2">
-        <div class="row g-3 align-items-baseline">
-          <div class="col-md-5"><a href="{{ "by-spec/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-spec/</a></div>
-          <div class="col-md-7 small text-body-secondary lh-sm">Conformance references - PDF 1.4 through 2.0, PDF/A levels.</div>
-        </div>
-      </li>
-      <li class="list-group-item px-0 py-2">
-        <div class="row g-3 align-items-baseline">
-          <div class="col-md-5"><a href="{{ "by-provenance/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-provenance/</a></div>
-          <div class="col-md-7 small text-body-secondary lh-sm">PDFs by origin - digital-native vs scanned (clean / noisy / skewed).</div>
-        </div>
-      </li>
-      <li class="list-group-item px-0 py-2">
-        <div class="row g-3 align-items-baseline">
-          <div class="col-md-5"><a href="{{ "by-fault/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-fault/</a></div>
-          <div class="col-md-7 small text-body-secondary lh-sm">PDFs damaged in known ways - one documented corruption each.</div>
-        </div>
-      </li>
-    </ul>
-  </section>
+  {{/* ===== BROWSE + REPORT ===== */}}
+  <div class="row g-4 mt-4">
+
+    <div class="col-12 col-md-7">
+      <h2 class="section-head mb-3">
+        <span class="text-warning-emphasis">&sect;B</span><span class="axis">Browse the catalog</span>
+      </h2>
+      <ul class="list-group list-group-flush" style="--bs-list-group-bg: transparent; --bs-list-group-border-color: var(--bs-border-color);">
+        <li class="list-group-item px-0 py-2">
+          <div class="row g-3 align-items-baseline">
+            <div class="col-md-5"><a href="{{ "by-form-factor/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-form-factor/</a></div>
+            <div class="col-md-7 small text-body-secondary lh-sm">Canonical clean PDFs - paper sizes, page counts, orientations, byte sizes.</div>
+          </div>
+        </li>
+        <li class="list-group-item px-0 py-2">
+          <div class="row g-3 align-items-baseline">
+            <div class="col-md-5"><a href="{{ "by-document/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-document/</a></div>
+            <div class="col-md-7 small text-body-secondary lh-sm">Real-world document shapes - invoices, IRS forms, lab reports, fax covers.</div>
+          </div>
+        </li>
+        <li class="list-group-item px-0 py-2">
+          <div class="row g-3 align-items-baseline">
+            <div class="col-md-5"><a href="{{ "by-spec/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-spec/</a></div>
+            <div class="col-md-7 small text-body-secondary lh-sm">Conformance references - PDF 1.4 through 2.0, PDF/A levels.</div>
+          </div>
+        </li>
+        <li class="list-group-item px-0 py-2">
+          <div class="row g-3 align-items-baseline">
+            <div class="col-md-5"><a href="{{ "by-provenance/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-provenance/</a></div>
+            <div class="col-md-7 small text-body-secondary lh-sm">PDFs by origin - digital-native vs scanned (clean / noisy / skewed).</div>
+          </div>
+        </li>
+        <li class="list-group-item px-0 py-2">
+          <div class="row g-3 align-items-baseline">
+            <div class="col-md-5"><a href="{{ "by-fault/" | relURL }}" class="font-monospace link-body-emphasis text-decoration-none">/by-fault/</a></div>
+            <div class="col-md-7 small text-body-secondary lh-sm">PDFs damaged in known ways - one documented corruption each.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-12 col-md-5">
+      <h2 class="section-head mb-3">
+        <span class="text-warning-emphasis">&sect;C</span><span class="axis">Report a missing PDF</span>
+      </h2>
+      <p class="text-body-secondary mb-3" style="font-size: 0.9rem;">
+        If this PDF <em>should</em> exist, open an issue. New fixtures land in
+        future releases if they're well-specified (failure mode, document shape,
+        or other axis worth covering).
+      </p>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="https://github.com/mintfax/pdfbin/issues/new" class="btn btn-outline-secondary font-monospace" style="font-size: 0.81rem;">file an issue &rarr;</a>
+        <a href="{{ "catalog.json" | relURL }}" class="btn btn-outline-secondary font-monospace" style="font-size: 0.81rem;">/catalog.json</a>
+      </div>
+    </div>
+
+  </div>
 
 </div>
 {{ end }}
