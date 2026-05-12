@@ -131,9 +131,57 @@ table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem;
   border-radius: 999px;
 }
 
-/* Card chrome (quickstart snippets) */
-.card.snippet pre { margin: 0; font-size: 0.78rem; }
-.card.snippet .card-header { font-family: var(--bs-font-monospace); font-size: 0.72rem; color: var(--bs-tertiary-color); }
+/* Tabbed quick-start card (replaces the earlier three-card row) */
+.quickstart-card {
+  --bs-nav-tabs-border-color: var(--bs-border-color);
+  --bs-nav-tabs-link-active-bg: var(--bs-card-bg);
+  --bs-nav-tabs-link-active-color: var(--bs-body-color);
+  --bs-nav-tabs-link-active-border-color: var(--bs-border-color) var(--bs-border-color) var(--bs-card-bg);
+  --bs-nav-tabs-link-hover-border-color: transparent;
+  --bs-nav-link-color: var(--bs-tertiary-color);
+  --bs-nav-link-hover-color: var(--bs-link-hover-color);
+  --bs-nav-link-padding-y: 0.5rem;
+  --bs-nav-link-padding-x: 0.9rem;
+  --bs-nav-link-font-size: 0.78rem;
+}
+.quickstart-card .nav-link {
+  font-family: var(--bs-font-monospace);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 0;
+  border-bottom-width: 1px;
+  position: relative;
+}
+.quickstart-card .nav-link .lang {
+  color: var(--bs-tertiary-color);
+  font-weight: 400;
+  margin-left: 0.4rem;
+  font-size: 0.86em;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.quickstart-card .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: 0.6rem; right: 0.6rem;
+  bottom: -1px;
+  height: 2px;
+  background: var(--bs-link-hover-color);
+}
+.quickstart-card pre {
+  margin: 0;
+  font-family: var(--bs-font-monospace);
+  font-size: 0.81rem;
+  line-height: 1.6;
+  color: var(--bs-body-color);
+  white-space: pre;
+  overflow-x: auto;
+}
+/* Syntax tokens for the snippets */
+.tok-c { color: var(--bs-tertiary-color); }
+.tok-k { color: var(--bs-link-hover-color); }
+.tok-s { color: #5a6a3a; }
+.tok-u { color: var(--bs-body-color); text-decoration: underline; text-decoration-color: rgba(194, 87, 12, 0.35); text-underline-offset: 2px; }
 
 /* Copy-to-clipboard buttons (every fixture row + the preview page) */
 .btn-copy {

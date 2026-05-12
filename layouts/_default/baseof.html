@@ -11,12 +11,11 @@
   {{ partial "footer.html" . }}
   <script>
     // Copy-to-clipboard: any element with [data-copy="..."] copies its value on click.
-    // The URL inside the cell remains text-selectable - this is just an affordance,
-    // not a requirement for using the catalog.
     document.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-copy]');
       if (!btn) return;
       var text = btn.getAttribute('data-copy');
+      if (!text) return;
       navigator.clipboard.writeText(text).then(function () {
         var orig = btn.textContent;
         btn.textContent = 'copied';
@@ -27,6 +26,35 @@
         }, 1500);
       });
     });
+
+    // Tab switching for [data-pdfbin-tabs] containers (homepage quick-start).
+    // Hand-rolled to avoid pulling in Bootstrap's full JS bundle.
+    (function () {
+      function primeCopy(tabs) {
+        var activePre = tabs.querySelector('.tab-pane.active pre');
+        var copy = tabs.querySelector('[data-copy-active]');
+        if (activePre && copy) copy.setAttribute('data-copy', activePre.innerText);
+      }
+      document.querySelectorAll('[data-pdfbin-tabs]').forEach(primeCopy);
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-pdfbin-tab]');
+        if (!btn) return;
+        var tabs = btn.closest('[data-pdfbin-tabs]');
+        if (!tabs) return;
+        var target = btn.getAttribute('data-pdfbin-tab');
+        tabs.querySelectorAll('[data-pdfbin-tab]').forEach(function (b) {
+          var on = b === btn;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        tabs.querySelectorAll('[data-pdfbin-pane]').forEach(function (p) {
+          var on = p.getAttribute('data-pdfbin-pane') === target;
+          p.classList.toggle('show', on);
+          p.classList.toggle('active', on);
+        });
+        primeCopy(tabs);
+      });
+    })();
   </script>
 </body>
 </html>

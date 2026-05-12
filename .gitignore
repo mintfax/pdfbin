@@ -22,3 +22,6 @@ Thumbs.db
 
 # Per-project Claude memory / session state (not for the repo)
 .claude/
+
+# Brainstorming / planning docs - kept locally, not for the repo
+docs/superpowers/
