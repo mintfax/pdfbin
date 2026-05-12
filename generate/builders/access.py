@@ -109,8 +109,16 @@ def build_all(static_dir: Path) -> list[FixtureRecord]:
          OWNER, None, "Legacy RC4-40 (revision 2) - common in older documents."),
     ]
     for id_, access_value, encryption, owner, user, desc in variants:
-        data = _encrypt(base, encryption)
         path = static_dir / f"{id_}.pdf"
-        path.write_bytes(data)
+        # Encrypted bytes are intrinsically nondeterministic (qpdf chooses a
+        # random encryption salt per save; pikepdf forbids deterministic_id
+        # with encryption). For idempotent regeneration we treat encrypted
+        # fixtures as "once authored, never regenerated": if the file exists,
+        # use those bytes. Delete the file to deliberately rotate.
+        if path.exists():
+            data = path.read_bytes()
+        else:
+            data = _encrypt(base, encryption)
+            path.write_bytes(data)
         out.append(_record(id_, data, access_value, owner, user, desc))
     return out

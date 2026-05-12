@@ -2,8 +2,8 @@
   "schema_version": "1.0.0",
   "site": "pdfbin.net",
   "license_default": "CC0-1.0",
-  "generated_at": "2026-05-12T17:36:02+00:00",
-  "fixture_count": 27,
+  "generated_at": "2026-05-12T17:42:30+00:00",
+  "fixture_count": 34,
   "facet_axes": {
     "health": [
       "valid",
@@ -73,7 +73,7 @@
       "superseded_by": null,
       "license": "CC0-1.0",
       "size_bytes": 2216,
-      "sha256": "502742129fc94fdd39eb14636a702aa22a9bd6197b54525d04f794f2de245d4d",
+      "sha256": "1d8c838415edcee6922b2e9b049461d686ba7170fc4b2586017d1fefc5896dce",
       "page_count": 1,
       "description": "AES-128 (revision 4) with owner password only.",
       "facets": {
@@ -100,7 +100,7 @@
       "superseded_by": null,
       "license": "CC0-1.0",
       "size_bytes": 2216,
-      "sha256": "45349db265ce70543983d706d2a8fd1f5cf1e26e580030ee3106a5f41fb15ba8",
+      "sha256": "dcf7f97629ea0ec0aa60a0e599697ace845a59c8cd9064927fe12913dfc5b10b",
       "page_count": 1,
       "description": "AES-128 (revision 4) with user password.",
       "facets": {
@@ -127,7 +127,7 @@
       "superseded_by": null,
       "license": "CC0-1.0",
       "size_bytes": 2530,
-      "sha256": "d619f2bce55b0cd75d803f1e4040789e19428d38adb5e0b7e9d458b1bec56b9c",
+      "sha256": "18e06ea4974b9ce8aa2a0d7f797baa47c6a184924402ac05425fe557f4ada914",
       "page_count": 1,
       "description": "AES-256 with both owner and user passwords set distinctly.",
       "facets": {
@@ -154,7 +154,7 @@
       "superseded_by": null,
       "license": "CC0-1.0",
       "size_bytes": 2530,
-      "sha256": "e453bc1baa20e20046cf55e4b0a369f9640262b3495acf4869753c5cef69eaeb",
+      "sha256": "9a67ce959d4060362346c103a4d9d5f9d703bc6878723b01226787a5f3c4573d",
       "page_count": 1,
       "description": "AES-256 with owner password only. Open password is empty.",
       "facets": {
@@ -181,7 +181,7 @@
       "superseded_by": null,
       "license": "CC0-1.0",
       "size_bytes": 2530,
-      "sha256": "9941572d4dbab66f3e83bccb361c723e488ea897a412756a43d3d5482a797a52",
+      "sha256": "9d423a303ad4615aeb1b4e7e068cc3b3695604e1ae80ad2496f5333458f01c95",
       "page_count": 1,
       "description": "AES-256 with user (open) password. Owner password also set.",
       "facets": {
@@ -600,6 +600,169 @@
       "source_script": "generate/builders/health.py:object_generation_mismatch"
     },
     {
+      "id": "pdf-1.4-clean",
+      "url": "https://pdfbin.net/pdf-1.4-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1755,
+      "sha256": "87cdb1decffa1c6f7f507905fd8d3e486ef107f712eef8c779d3e5793db55d56",
+      "page_count": 1,
+      "description": "Clean PDF saved targeting spec version 1.4.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.4",
+        "features": []
+      },
+      "source_script": "generate/builders/spec.py:pdf_1_4_clean"
+    },
+    {
+      "id": "pdf-1.7-clean",
+      "url": "https://pdfbin.net/pdf-1.7-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1755,
+      "sha256": "f0be554cca8cf23c54f001fb54eeda72db0bf6ad585df75c945f87852859aad8",
+      "page_count": 1,
+      "description": "Clean PDF saved targeting spec version 1.7.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-1.7",
+        "features": []
+      },
+      "source_script": "generate/builders/spec.py:pdf_1_7_clean"
+    },
+    {
+      "id": "pdf-2.0-clean",
+      "url": "https://pdfbin.net/pdf-2.0-clean.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 1755,
+      "sha256": "84340fcbc399fa6d3eda5ac633f668fceb1b5de09dbd5ebd8fa87defb0ad545c",
+      "page_count": 1,
+      "description": "Clean PDF saved targeting spec version 2.0.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF-2.0",
+        "features": []
+      },
+      "source_script": "generate/builders/spec.py:pdf_2_0_clean"
+    },
+    {
+      "id": "pdfa-1a-compliant",
+      "url": "https://pdfbin.net/pdfa-1a-compliant.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 7121,
+      "sha256": "08915dcb0eb0d154b6c5b4bfb1c99a1c3607626490583ecc0957fe1fffeebc7c",
+      "page_count": 1,
+      "description": "PDF/A-1A compliant document (accessible / tagged variant of -1B).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF/A-1A",
+        "features": []
+      },
+      "source_script": "generate/builders/spec.py:pdfa_1a_compliant"
+    },
+    {
+      "id": "pdfa-1b-compliant",
+      "url": "https://pdfbin.net/pdfa-1b-compliant.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 7121,
+      "sha256": "d7cefcca57da6c9371d64385d3422925609cb318ec0a81f48d997cf0f9aa5584",
+      "page_count": 1,
+      "description": "PDF/A-1B compliant document (visual appearance preserved).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF/A-1B",
+        "features": []
+      },
+      "source_script": "generate/builders/spec.py:pdfa_1b_compliant"
+    },
+    {
+      "id": "pdfa-2b-compliant",
+      "url": "https://pdfbin.net/pdfa-2b-compliant.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 7121,
+      "sha256": "d101bef04c4af2dee29b03369df1e5cf04f905341c95dcbb0d06676b09c36d74",
+      "page_count": 1,
+      "description": "PDF/A-2B compliant document (PDF 1.7 features allowed).",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF/A-2B",
+        "features": []
+      },
+      "source_script": "generate/builders/spec.py:pdfa_2b_compliant"
+    },
+    {
+      "id": "pdfa-3b-with-attachment",
+      "url": "https://pdfbin.net/pdfa-3b-with-attachment.pdf",
+      "added": "2026-05-12",
+      "status": "current",
+      "superseded_by": null,
+      "license": "CC0-1.0",
+      "size_bytes": 7622,
+      "sha256": "b633145cdfc4f5da9bb8c4f7db6b36377a787204b4d3d56c9dca5e352dc77854",
+      "page_count": 1,
+      "description": "PDF/A-3B with an embedded plain-text attachment - the headline PDF/A-3 feature.",
+      "facets": {
+        "health": "valid",
+        "access": "open",
+        "document_shape": "blank",
+        "provenance": "digital-native",
+        "paper_size": "US-Letter",
+        "orientation": "portrait",
+        "spec": "PDF/A-3B",
+        "features": [
+          "embedded-file"
+        ]
+      },
+      "source_script": "generate/builders/spec.py:pdfa_3b_with_attachment"
+    },
+    {
       "id": "rc4-128-owner",
       "url": "https://pdfbin.net/rc4-128-owner.pdf",
       "added": "2026-05-12",
@@ -607,7 +770,7 @@
       "superseded_by": null,
       "license": "CC0-1.0",
       "size_bytes": 1701,
-      "sha256": "c71c8ffae19605a701f7fcde87bcece4a61af076e0019552abcedbfb525fcf9d",
+      "sha256": "343fe3b6fce4e8c455700a0a3651f3ba42b51a46d2141715a3b70288ac683bd9",
       "page_count": 1,
       "description": "Legacy RC4-128 (revision 3) with owner password only.",
       "facets": {
@@ -634,7 +797,7 @@
       "superseded_by": null,
       "license": "CC0-1.0",
       "size_bytes": 1698,
-      "sha256": "88ef2f75d5eb4456b588ff70692df5776ec7e63ab38cf436fc4269c0334d58f1",
+      "sha256": "42d1a553615aa0dc4d44014f5a4545e8a6ed26b209c3011010dfa2da8fe6c5e5",
       "page_count": 1,
       "description": "Legacy RC4-40 (revision 2) - common in older documents.",
       "facets": {

@@ -543,6 +543,174 @@
         }
       }
     },
+    "/pdf-1.4-clean.pdf": {
+      "get": {
+        "summary": "Clean PDF saved targeting spec version 1.4.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.4"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pdf-1.7-clean.pdf": {
+      "get": {
+        "summary": "Clean PDF saved targeting spec version 1.7.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pdf-2.0-clean.pdf": {
+      "get": {
+        "summary": "Clean PDF saved targeting spec version 2.0.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-2.0"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pdfa-1a-compliant.pdf": {
+      "get": {
+        "summary": "PDF/A-1A compliant document (accessible / tagged variant of -1B).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF/A-1A"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pdfa-1b-compliant.pdf": {
+      "get": {
+        "summary": "PDF/A-1B compliant document (visual appearance preserved).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF/A-1B"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pdfa-2b-compliant.pdf": {
+      "get": {
+        "summary": "PDF/A-2B compliant document (PDF 1.7 features allowed).",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF/A-2B"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pdfa-3b-with-attachment.pdf": {
+      "get": {
+        "summary": "PDF/A-3B with an embedded plain-text attachment - the headline PDF/A-3 feature.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF/A-3B"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/rc4-128-owner.pdf": {
       "get": {
         "summary": "Legacy RC4-128 (revision 3) with owner password only.",
