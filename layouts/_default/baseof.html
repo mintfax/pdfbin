@@ -54,40 +54,6 @@
       });
     });
 
-    // When previewing on a non-canonical host (e.g. pdfbin.example.dev),
-    // rewrite every visible URL, href, src, and data-copy payload that points
-    // at https://pdfbin.net/ so the page is self-consistent: what you see in
-    // the row is what the copy button gives you.
-    (function () {
-      var canonical = 'https://pdfbin.net/';
-      if (window.location.hostname === 'pdfbin.net') return;
-      var here = window.location.origin + '/';
-      document.querySelectorAll('a[href^="' + canonical + '"]').forEach(function (a) {
-        a.setAttribute('href', a.getAttribute('href').split(canonical).join(here));
-      });
-      document.querySelectorAll('embed[src^="' + canonical + '"]').forEach(function (e) {
-        e.setAttribute('src', e.getAttribute('src').split(canonical).join(here));
-      });
-      document.querySelectorAll('[data-copy]').forEach(function (el) {
-        var v = el.getAttribute('data-copy');
-        if (v && v.indexOf(canonical) !== -1) {
-          el.setAttribute('data-copy', v.split(canonical).join(here));
-        }
-      });
-      (function walk(node) {
-        if (node.nodeType === 3) {
-          if (node.nodeValue.indexOf(canonical) !== -1) {
-            node.nodeValue = node.nodeValue.split(canonical).join(here);
-          }
-          return;
-        }
-        if (node.nodeType !== 1) return;
-        var tag = node.tagName;
-        if (tag === 'SCRIPT' || tag === 'STYLE') return;
-        for (var c = node.firstChild; c; c = c.nextSibling) walk(c);
-      })(document.body);
-    })();
-
     // Row-as-link: clicking anywhere on a [data-row-href] row navigates to
     // that URL, except when the click lands on a real link or button (so the
     // copy button and existing anchors keep working unchanged).
