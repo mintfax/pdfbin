@@ -1,0 +1,30 @@
+{{/* Render the distinguishing facet badges for a fixture. */}}
+{{- $f := .facets -}}
+{{- with $f.health -}}
+  {{- if ne . "valid" -}}
+    <span class="badge tag bg-warning-subtle text-warning-emphasis border border-warning-subtle">{{ . }}</span>
+  {{- end -}}
+{{- end -}}
+{{- with $f.access -}}
+  {{- if ne . "open" -}}
+    <span class="badge tag bg-warning-subtle text-warning-emphasis border border-warning-subtle">{{ . }}</span>
+  {{- end -}}
+{{- end -}}
+{{- with $f.document_shape -}}
+  {{- if ne . "blank" -}}
+    <span class="badge tag bg-primary-bg-subtle text-primary-emphasis border border-primary-subtle">{{ . }}</span>
+  {{- end -}}
+{{- end -}}
+{{- with $f.provenance -}}
+  {{- if ne . "digital-native" -}}
+    <span class="badge tag bg-body-tertiary text-body-secondary border">{{ . }}</span>
+  {{- end -}}
+{{- end -}}
+{{- with $f.spec -}}
+  {{- if hasPrefix . "PDF/A" -}}
+    <span class="badge tag bg-body-tertiary text-body-secondary border">{{ . }}</span>
+  {{- end -}}
+{{- end -}}
+{{- range $f.features -}}
+  <span class="badge tag bg-body-tertiary text-body-secondary border">{{ . }}</span>
+{{- end -}}

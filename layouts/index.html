@@ -1,0 +1,142 @@
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+{{ $fixtures := $catalog.fixtures }}
+
+<div class="container pb-wide pt-4 pt-md-5 pb-md-5" style="max-width: 1180px;">
+
+  {{/* ===== HEADER ===== */}}
+  <header class="row align-items-baseline gx-4 gy-2 pb-4 border-bottom">
+    <div class="col-12 col-md-auto">
+      <span class="brand"><span class="brand-dot"></span><span>pdfbin.net</span></span>
+    </div>
+    <div class="col">
+      <p class="mb-0 text-body-secondary" style="max-width: 68ch;">
+        A free library of test PDFs at stable URLs you can drop into your test suite.
+        {{ $catalog.fixture_count }} fixtures, CC0-1.0, flat URLs, immutable bytes.
+      </p>
+    </div>
+    <div class="col-12 col-md-auto small font-monospace text-body-tertiary">
+      <span>v{{ $catalog.schema_version }}</span>
+      &middot;
+      <span>{{ $catalog.fixture_count }} fixtures</span>
+    </div>
+  </header>
+
+  {{/* ===== QUICK-START ===== */}}
+  <section class="block mt-5">
+    <h2 class="section-title"><span class="num">&sect;0</span><span class="axis">Quick start</span></h2>
+    <p class="text-body-secondary mb-3">Pin a fixture by its flat URL. Bytes are immutable - the same URL returns the same PDF forever.</p>
+    <div class="row g-3">
+      <div class="col-12 col-lg-4">
+        <div class="card snippet h-100">
+          <div class="card-header py-2">curl</div>
+          <div class="card-body p-3"><pre><code>curl https://pdfbin.net/xref-truncated.pdf \
+  -o fixture.pdf</code></pre></div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="card snippet h-100">
+          <div class="card-header py-2">Python (pytest fixture)</div>
+          <div class="card-body p-3"><pre><code>@pytest.fixture
+def truncated_pdf(tmp_path):
+    url = "https://pdfbin.net/xref-truncated.pdf"
+    return urlretrieve(url, tmp_path / "f.pdf")[0]</code></pre></div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="card snippet h-100">
+          <div class="card-header py-2">JavaScript</div>
+          <div class="card-body p-3"><pre><code>const url = "https://pdfbin.net/aes256-owner.pdf";
+const blob = await (await fetch(url)).blob();
+// passwords are in /catalog.json</code></pre></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{/* ===== BY FAILURE MODE ===== */}}
+  <section class="block mt-5" id="by-fault">
+    <h2 class="section-title"><span class="num">&sect;1</span><span class="axis">By Failure Mode</span></h2>
+    <p class="text-body-secondary mb-3">PDFs damaged in known, named ways. Each PDF's facet record names the exact corruption.</p>
+    <div class="table-responsive">
+      <table class="table table-borderless align-top fixtures mb-0">
+        <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+        <tbody>
+          {{ range where $fixtures "facets.health" "ne" "valid" }}{{ partial "fixture-row.html" . }}{{ end }}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {{/* ===== BY DOCUMENT SHAPE ===== */}}
+  <section class="block mt-5" id="by-document">
+    <h2 class="section-title"><span class="num">&sect;2</span><span class="axis">By Document Shape</span></h2>
+    <p class="text-body-secondary mb-3">PDFs shaped like real-world documents - fax covers, invoices, IRS forms, lab reports, contracts.</p>
+    <div class="table-responsive">
+      <table class="table table-borderless align-top fixtures mb-0">
+        <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+        <tbody>
+          {{ range where $fixtures "facets.document_shape" "ne" "blank" }}{{ partial "fixture-row.html" . }}{{ end }}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {{/* ===== BY PROVENANCE ===== */}}
+  <section class="block mt-5" id="by-provenance">
+    <h2 class="section-title"><span class="num">&sect;3</span><span class="axis">By Provenance</span></h2>
+    <p class="text-body-secondary mb-3">Digital-native vs scanned variants. Scans vary by DPI, noise, and skew - useful for OCR test suites.</p>
+    <div class="table-responsive">
+      <table class="table table-borderless align-top fixtures mb-0">
+        <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+        <tbody>
+          {{ range where $fixtures "facets.provenance" "ne" "digital-native" }}{{ partial "fixture-row.html" . }}{{ end }}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {{/* ===== BY SPEC COMPLIANCE ===== */}}
+  <section class="block mt-5" id="by-spec">
+    <h2 class="section-title"><span class="num">&sect;4</span><span class="axis">By Spec Compliance</span></h2>
+    <p class="text-body-secondary mb-3">PDF spec versions (1.4 / 1.7 / 2.0) and PDF/A conformance levels (1B, 1A, 2B, 3B).</p>
+    <div class="table-responsive">
+      <table class="table table-borderless align-top fixtures mb-0">
+        <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+        <tbody>
+          {{ range $fixtures }}{{ if or (hasPrefix .facets.spec "PDF/A") (in (slice "pdf-1.4-clean" "pdf-1.7-clean" "pdf-2.0-clean") .id) }}{{ partial "fixture-row.html" . }}{{ end }}{{ end }}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {{/* ===== BY FORM FACTOR ===== */}}
+  <section class="block mt-5" id="by-form-factor">
+    <h2 class="section-title"><span class="num">&sect;5</span><span class="axis">By Form Factor</span></h2>
+    <p class="text-body-secondary mb-3">Paper sizes (DIN A4, US Letter, JIS B5), page counts (1 to 500), orientations, and byte sizes.</p>
+    <div class="table-responsive">
+      <table class="table table-borderless align-top fixtures mb-0">
+        <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+        <tbody>
+          {{ range $fixtures }}{{ if hasPrefix .id "clean-" }}{{ partial "fixture-row.html" . }}{{ end }}{{ end }}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {{/* ===== DISCOVERY ===== */}}
+  <section class="block mt-5">
+    <h2 class="section-title"><span class="num">&sect;6</span><span class="axis">Discovery</span></h2>
+    <p class="text-body-secondary mb-3">
+      Flat URLs, immutable bytes, versioning in the catalog. Every fixture has a per-PDF preview page at <code>/preview/&lt;id&gt;/</code>.
+    </p>
+    <ul class="list-unstyled font-monospace small">
+      <li><a href="/catalog.json">/catalog.json</a> - typed catalog with facets, sha256, lifecycle per PDF</li>
+      <li><a href="/openapi.json">/openapi.json</a> - OpenAPI 3.1 spec with every fixture as a GET endpoint</li>
+      <li><a href="/llms.txt">/llms.txt</a> - AI-agent summary</li>
+      <li><a href="https://github.com/mintfax/pdfbin">github.com/mintfax/pdfbin</a> - source</li>
+    </ul>
+  </section>
+
+</div>
+{{ end }}
