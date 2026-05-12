@@ -17,7 +17,9 @@ from generate.catalog import emit_catalog, emit_llms_txt, emit_openapi
 # Builder modules in stable execution order. Each module exposes
 # `build_all(static_dir: Path) -> list[FixtureRecord]`.
 # Filled in as builder tasks land.
-BUILDER_MODULES: list[str] = []
+BUILDER_MODULES: list[str] = [
+    "generate.builders.form_factor",
+]
 
 
 def run_pipeline(static_dir: Path) -> list[FixtureRecord]:

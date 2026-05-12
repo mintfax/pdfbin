@@ -14,5 +14,222 @@
       "url": "https://pdfbin.net"
     }
   ],
-  "paths": {}
+  "paths": {
+    "/clean-100-pages.pdf": {
+      "get": {
+        "summary": "Clean US Letter, 100 portrait pages.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-500-pages.pdf": {
+      "get": {
+        "summary": "Clean US Letter, 500 portrait pages.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-a4-1page.pdf": {
+      "get": {
+        "summary": "Clean DIN A4 (210x297mm), single portrait page, body text.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-a4-3page.pdf": {
+      "get": {
+        "summary": "Clean DIN A4, three portrait pages.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-jis-b5-1page.pdf": {
+      "get": {
+        "summary": "Clean JIS B5 (182x257mm) - not ISO B5. Single portrait page.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-letter-1page.pdf": {
+      "get": {
+        "summary": "Clean US Letter (8.5x11in), single portrait page, body text.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-letter-3page.pdf": {
+      "get": {
+        "summary": "Clean US Letter, three portrait pages.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-mixed-orientation.pdf": {
+      "get": {
+        "summary": "US Letter, alternating portrait and landscape across 5 pages.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clean-paper-sizes-mixed.pdf": {
+      "get": {
+        "summary": "Mixed paper sizes: A4, US Letter, and JIS B5 in one document.",
+        "tags": [
+          "health:valid",
+          "document_shape:blank",
+          "provenance:digital-native",
+          "spec:PDF-1.7"
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF fixture (CC0)",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
