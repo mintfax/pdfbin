@@ -10,7 +10,7 @@ All PDFs in this library are released under
 otherwise, without attribution.
 
 Site and pipeline code is released under MIT - see
-[LICENSE](https://github.com/mintfax/pdfbin/blob/dev/LICENSE) for the full
+[LICENSE](https://github.com/mintfax/pdfbin/blob/main/LICENSE) for the full
 text.
 
 ## Source-asset provenance
