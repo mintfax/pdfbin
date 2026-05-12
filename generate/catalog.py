@@ -13,6 +13,7 @@ BASE_URL = "https://pdfbin.net"
 
 
 def emit_catalog(records: list[FixtureRecord], path: Path) -> None:
+    """Write catalog.json - schema version, facet vocabularies, and one entry per fixture."""
     doc = {
         "schema_version": SCHEMA_VERSION,
         "site": "pdfbin.net",
@@ -26,6 +27,7 @@ def emit_catalog(records: list[FixtureRecord], path: Path) -> None:
 
 
 def emit_llms_txt(records: list[FixtureRecord], path: Path) -> None:
+    """Write llms.txt - markdown summary tuned for AI agents discovering the catalog."""
     body = f"""# pdfbin.net
 
 A free CC0 library of test PDFs. Each PDF lives at a stable flat URL and
@@ -72,6 +74,7 @@ All fixtures CC0-1.0. Site code MIT. Source: github.com/mintfax/pdfbin
 
 
 def emit_openapi(records: list[FixtureRecord], path: Path) -> None:
+    """Write openapi.json - OpenAPI 3.1 spec with every fixture as a GET endpoint."""
     paths: dict[str, dict] = {}
     for r in records:
         paths[f"/{r.id}.pdf"] = {
