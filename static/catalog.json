@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "site": "pdfbin.net",
+  "license_default": "CC0-1.0",
+  "generated_at": "2026-05-12T16:44:20+00:00",
+  "fixture_count": 0,
+  "facet_axes": {
+    "health": [
+      "valid",
+      "corrupt-xref-truncated",
+      "corrupt-header-truncated",
+      "corrupt-stream-length-mismatch",
+      "corrupt-object-generation-mismatch",
+      "corrupt-trailer-missing",
+      "corrupt-eof-missing",
+      "corrupt-byte-flipped"
+    ],
+    "access": [
+      "open",
+      "encrypted-aes256-owner",
+      "encrypted-aes256-user",
+      "encrypted-aes256-both",
+      "encrypted-aes128-owner",
+      "encrypted-aes128-user",
+      "encrypted-rc4-128-owner",
+      "encrypted-rc4-40-owner"
+    ],
+    "document_shape": [
+      "blank",
+      "fax-cover-sheet",
+      "invoice",
+      "receipt",
+      "irs-1040",
+      "bank-statement",
+      "contract-nda",
+      "lab-report"
+    ],
+    "provenance": [
+      "digital-native",
+      "scanned-clean",
+      "scanned-noisy",
+      "scanned-skewed",
+      "scanned-noisy-skewed"
+    ],
+    "paper_size": [
+      "DIN-A4",
+      "US-Letter",
+      "JIS-B5",
+      "mixed"
+    ],
+    "spec": [
+      "PDF-1.4",
+      "PDF-1.7",
+      "PDF-2.0",
+      "PDF/A-1B",
+      "PDF/A-1A",
+      "PDF/A-2B",
+      "PDF/A-3B",
+      "PDF/A-4"
+    ],
+    "features": [
+      "acroform",
+      "signed",
+      "embedded-file"
+    ]
+  },
+  "fixtures": []
+}

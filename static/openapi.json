@@ -1,0 +1,18 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "pdfbin.net",
+    "version": "1.0.0",
+    "description": "Free CC0 PDF fixtures at stable flat URLs",
+    "license": {
+      "name": "CC0-1.0",
+      "identifier": "CC0-1.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://pdfbin.net"
+    }
+  ],
+  "paths": {}
+}

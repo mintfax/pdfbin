@@ -1,0 +1,41 @@
+# pdfbin.net
+
+A free CC0 library of test PDFs. Each PDF lives at a stable flat URL and
+is designed to exercise one or more specific behaviors - clean, corrupt
+in a known way, encrypted, large, PDF/A conformant, scanned, form-bearing,
+shaped like a real document (fax cover, invoice, IRS 1040, ...), or any
+combination.
+
+## URL contract
+
+Every PDF lives at https://pdfbin.net/<id>.pdf. Bytes are immutable; the
+URL is the version. If a PDF turns out to be wrong, a new ID ships and the
+old one stays available, marked status: deprecated in catalog.json.
+
+## Discovery
+
+- /catalog.json - typed catalog: every fixture's facets, sha256,
+  page_count, license, lifecycle (added/status/superseded_by)
+- /openapi.json - OpenAPI 3.1 spec with every fixture as a GET endpoint
+
+## Facet axes
+
+- health         valid / corrupt-{xref-truncated, header-truncated, ...}
+- access         open / encrypted-{aes256-owner, aes128-user, ...}
+- document_shape blank / fax-cover-sheet / invoice / receipt / irs-1040 /
+                 bank-statement / contract-nda / lab-report
+- provenance     digital-native / scanned-{clean, noisy, skewed, ...}
+- paper_size     DIN-A4 / US-Letter / JIS-B5 / mixed
+- spec           PDF-1.4 / PDF-1.7 / PDF-2.0 / PDF/A-1B ... PDF/A-4
+- features       acroform / signed / embedded-file
+
+## Conventions
+
+Encrypted PDFs use owner="ownerpass", user="userpass" unless an encrypted
+fixture's catalog entry says otherwise.
+
+Total fixtures: 0.
+
+## License
+
+All fixtures CC0-1.0. Site code MIT. Source: github.com/mintfax/pdfbin
