@@ -1,0 +1,21 @@
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<div class="container pb-wide py-4 py-md-5" style="max-width: 1180px;">
+  <header class="mb-4 pb-3 border-bottom">
+    <h1 class="h2">By Failure Mode</h1>
+    <p class="lead text-body-secondary mb-0">
+      PDFs damaged in known, named ways. Each PDF's facet record names the
+      exact corruption and the source-script function that produces it.
+    </p>
+  </header>
+  <div class="table-responsive">
+    <table class="table table-borderless align-top fixtures mb-0">
+      <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+      <tbody>
+        {{ range where $catalog.fixtures "facets.health" "ne" "valid" }}{{ partial "fixture-row.html" . }}{{ end }}
+      </tbody>
+    </table>
+  </div>
+  <p class="mt-4"><a href="/">&larr; back to all views</a></p>
+</div>
+{{ end }}

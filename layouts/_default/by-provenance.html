@@ -1,0 +1,21 @@
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<div class="container pb-wide py-4 py-md-5" style="max-width: 1180px;">
+  <header class="mb-4 pb-3 border-bottom">
+    <h1 class="h2">By Provenance</h1>
+    <p class="lead text-body-secondary mb-0">
+      Digital-native vs scanned variants. Scanned variants vary by DPI,
+      noise, and skew - useful for OCR test suites.
+    </p>
+  </header>
+  <div class="table-responsive">
+    <table class="table table-borderless align-top fixtures mb-0">
+      <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+      <tbody>
+        {{ range where $catalog.fixtures "facets.provenance" "ne" "digital-native" }}{{ partial "fixture-row.html" . }}{{ end }}
+      </tbody>
+    </table>
+  </div>
+  <p class="mt-4"><a href="/">&larr; back to all views</a></p>
+</div>
+{{ end }}

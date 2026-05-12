@@ -1,0 +1,21 @@
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<div class="container pb-wide py-4 py-md-5" style="max-width: 1180px;">
+  <header class="mb-4 pb-3 border-bottom">
+    <h1 class="h2">By Form Factor</h1>
+    <p class="lead text-body-secondary mb-0">
+      Paper sizes (DIN A4, US Letter, JIS B5, mixed), page counts (1 to 500),
+      orientations, and byte sizes (1MB to 50MB).
+    </p>
+  </header>
+  <div class="table-responsive">
+    <table class="table table-borderless align-top fixtures mb-0">
+      <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+      <tbody>
+        {{ range $catalog.fixtures }}{{ if hasPrefix .id "clean-" }}{{ partial "fixture-row.html" . }}{{ end }}{{ end }}
+      </tbody>
+    </table>
+  </div>
+  <p class="mt-4"><a href="/">&larr; back to all views</a></p>
+</div>
+{{ end }}

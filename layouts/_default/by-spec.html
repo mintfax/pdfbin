@@ -1,0 +1,22 @@
+{{ define "main" }}
+{{ $catalog := transform.Unmarshal (readFile "static/catalog.json") }}
+<div class="container pb-wide py-4 py-md-5" style="max-width: 1180px;">
+  <header class="mb-4 pb-3 border-bottom">
+    <h1 class="h2">By Spec Compliance</h1>
+    <p class="lead text-body-secondary mb-0">
+      PDF spec versions (1.4 / 1.7 / 2.0) and PDF/A conformance levels
+      (1B, 1A, 2B, 3B). Each PDF/A fixture has been produced by Ghostscript
+      strict-compliance mode against the relevant standard.
+    </p>
+  </header>
+  <div class="table-responsive">
+    <table class="table table-borderless align-top fixtures mb-0">
+      <thead><tr><th>ID</th><th>Description</th><th>Facets</th><th class="text-end d-none d-md-table-cell">URL</th></tr></thead>
+      <tbody>
+        {{ range $catalog.fixtures }}{{ if or (hasPrefix .facets.spec "PDF/A") (in (slice "pdf-1.4-clean" "pdf-1.7-clean" "pdf-2.0-clean") .id) }}{{ partial "fixture-row.html" . }}{{ end }}{{ end }}
+      </tbody>
+    </table>
+  </div>
+  <p class="mt-4"><a href="/">&larr; back to all views</a></p>
+</div>
+{{ end }}
