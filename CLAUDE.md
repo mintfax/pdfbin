@@ -22,3 +22,7 @@ See `docs/superpowers/specs/2026-05-12-pdfbin-net-design.md` for the design.
   `"status": "deprecated"` in catalog.json with a `superseded_by` pointer.
 - Facet vocabularies live in `generate/facets.py` and are the single source
   of truth. Adding a value bumps the catalog schema_version.
+
+## Dev URL
+
+This project's `public/` folder is accessible at https://pdfbin.example.dev (Caddy wildcard route, rebuilt with `hugo --minify`).
