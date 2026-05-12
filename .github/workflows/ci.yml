@@ -1,13 +1,23 @@
-name: build
+name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  pipeline:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +41,8 @@ jobs:
       - name: Regenerate fixtures + preview stubs
         run: python -m generate.pipeline
 
-      - name: Verify fixture count and catalog schema
+      - name: Verify catalog shape
         run: |
-          # Strict byte-level no-drift requires pinned toolchain versions (or the
-          # Dockerfile build env). For now: assert the pipeline succeeded and the
-          # expected output files are present + the catalog has the right shape.
           test -f static/catalog.json
           test -f static/llms.txt
           test -f static/openapi.json
@@ -48,9 +55,9 @@ jobs:
           print(f'catalog.json shape OK: {d[\"fixture_count\"]} fixtures')
           "
 
-  hugo:
+  build:
     runs-on: ubuntu-latest
-    needs: pipeline
+    needs: test
     steps:
       - uses: actions/checkout@v4
 
@@ -74,7 +81,26 @@ jobs:
           test -f public/by-form-factor/index.html
           test -f public/about/index.html
           test -f public/license/index.html
+          test -f public/credits/index.html
+          test -f public/404.html
           test -f public/llms.txt
-          # Spot-check a known-good preview page exists
           test -f public/preview/xref-truncated/index.html
           echo "All expected outputs present."
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
