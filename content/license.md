@@ -15,5 +15,4 @@ text.
 ## Source-asset provenance
 
 A few fixtures are imported verbatim from public-domain sources rather than
-generated. The chain of custody for each is documented in
-[generate/sources/PROVENANCE.md](https://github.com/mintfax/pdfbin/blob/dev/generate/sources/PROVENANCE.md).
+generated. See [credits](../credits/) for the chain of custody on each.
