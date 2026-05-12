@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="container py-4 py-md-5" style="max-width: 1180px;">
+  <article class="text-page mx-auto">
+    <header class="mb-4 pb-3 border-bottom">
+      <p class="small font-monospace text-body-tertiary mb-2">
+        <a href="/" class="text-decoration-none">pdfbin.net</a>
+      </p>
+      <h1 class="mb-0">{{ .Title }}</h1>
+    </header>
+    {{ .Content }}
+  </article>
+</div>
+{{ end }}
