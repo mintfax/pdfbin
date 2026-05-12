@@ -1,0 +1,17 @@
+baseURL = "https://pdfbin.net"
+languageCode = "en-us"
+title = "pdfbin.net"
+enableRobotsTXT = false
+
+[params]
+description = "A free library of test PDFs at stable URLs you can drop into your test suite."
+bootstrap_version = "5.3.3"
+bootstrap_css_sri = "sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+
+[markup.goldmark.renderer]
+unsafe = true
+
+[outputs]
+home = ["HTML"]
+section = ["HTML"]
+page = ["HTML"]

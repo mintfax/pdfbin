@@ -1,0 +1,126 @@
+/* Bootstrap CSS variable overrides matching the claude.ai/design palette.
+   Shared by homepage, per-view pages, preview pages, and text pages. */
+:root, [data-bs-theme="light"] {
+  --bs-body-bg: #f7f4ee;
+  --bs-body-color: #1a1814;
+  --bs-body-color-rgb: 26, 24, 20;
+  --bs-body-font-family: "IBM Plex Sans", system-ui, sans-serif;
+  --bs-body-font-size: 0.9375rem;
+  --bs-body-line-height: 1.5;
+  --bs-border-color: #e7e1d3;
+  --bs-border-color-translucent: #e7e1d3;
+  --bs-secondary-color: #4a4640;
+  --bs-secondary-color-rgb: 74, 70, 64;
+  --bs-tertiary-color: #7a746a;
+  --bs-tertiary-color-rgb: 122, 116, 106;
+  --bs-tertiary-bg: #efeadc;
+  --bs-link-color: #1a1814;
+  --bs-link-color-rgb: 26, 24, 20;
+  --bs-link-hover-color: #c2570c;
+  --bs-link-hover-color-rgb: 194, 87, 12;
+  --bs-code-color: #1a1814;
+  --bs-font-monospace: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bs-emphasis-color-rgb: 26, 24, 20;
+  --bs-primary: #c2570c;
+  --bs-primary-rgb: 194, 87, 12;
+  --bs-primary-text-emphasis: #c2570c;
+  --bs-primary-bg-subtle: rgba(194, 87, 12, 0.10);
+  --bs-primary-border-subtle: rgba(194, 87, 12, 0.35);
+  --bs-warning: #c2570c;
+  --bs-warning-rgb: 194, 87, 12;
+  --bs-warning-bg-subtle: rgba(194, 87, 12, 0.10);
+  --bs-warning-border-subtle: rgba(194, 87, 12, 0.35);
+  --bs-warning-text-emphasis: #c2570c;
+  --bs-card-bg: #fbf9f3;
+  --bs-card-cap-bg: var(--bs-tertiary-bg);
+  --bs-card-border-color: var(--bs-border-color);
+}
+
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+a {
+  text-decoration-color: rgba(194, 87, 12, 0.35);
+  text-underline-offset: 3px;
+}
+a:hover { text-decoration-color: var(--bs-link-hover-color); }
+
+/* Brand mark */
+.brand { font-family: var(--bs-font-monospace); font-weight: 600; font-size: 22px; letter-spacing: -0.01em; color: var(--bs-body-color); display: inline-flex; align-items: baseline; gap: 6px; }
+.brand-dot { display: inline-block; width: 9px; height: 9px; background: var(--bs-primary); border-radius: 2px; transform: translateY(-1px); }
+.site-header { background: var(--bs-body-bg); }
+
+/* Section heads (mono uppercase) */
+.section-title {
+  font-family: var(--bs-font-monospace);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-tertiary-color);
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.section-title .num { color: var(--bs-primary); margin-right: 8px; }
+
+/* Catalog table */
+table.fixtures {
+  font-size: 0.875rem;
+  width: 100%;
+}
+table.fixtures thead th {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bs-tertiary-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  padding: 8px 10px;
+  text-align: left;
+}
+table.fixtures tbody td {
+  padding: 10px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+table.fixtures tbody tr:hover td { background: #fbf9f3; }
+table.fixtures tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 var(--bs-primary); }
+table.fixtures .id { font-family: var(--bs-font-monospace); }
+table.fixtures .url { font-family: var(--bs-font-monospace); font-size: 0.78rem; color: var(--bs-tertiary-color); }
+
+/* Facet badges */
+.badge.tag {
+  font-weight: 500;
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+/* Card chrome (quickstart snippets) */
+.card.snippet pre { margin: 0; font-size: 0.78rem; }
+.card.snippet .card-header { font-family: var(--bs-font-monospace); font-size: 0.72rem; color: var(--bs-tertiary-color); }
+
+/* Container width matches design */
+.container.pb-wide { max-width: 1180px; }
+
+/* Text-page (about/license) typography */
+.text-page { max-width: 70ch; font-size: 1rem; line-height: 1.6; }
+.text-page h2 {
+  font-family: var(--bs-font-monospace);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-tertiary-color);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+.text-page code { background: var(--bs-tertiary-bg); padding: 1px 4px; border-radius: 3px; }
+.text-page pre { background: var(--bs-tertiary-bg); padding: 1rem; border-radius: 4px; }
+
+/* Preview-page metadata panel */
+.preview-meta dl { margin-bottom: 0; }
+.preview-meta dt { font-family: var(--bs-font-monospace); font-size: 0.78rem; color: var(--bs-tertiary-color); }
+.preview-meta dd { font-size: 0.85rem; word-break: break-all; }
+.preview-embed { aspect-ratio: 8.5 / 11; width: 100%; min-height: 600px; }
