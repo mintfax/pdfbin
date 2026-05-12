@@ -1134,73 +1134,87 @@ Expected: FAIL (module doesn't exist).
 
 - [ ] **Step 3: Implement `generate/builders/size.py`**
 
+**Memory note.** An earlier draft used Pillow to allocate a Python list of ~33 million RGB tuples for a 50MB target - peaking at ~5GB resident before encoding and crashing the developer's system. The revised builder uses `secrets.token_bytes()` + pikepdf's embedded-file attachment - peak resident is approximately the target file size (one bytes allocation, no Python-tuple intermediates). Each fixture's facets accordingly list `features={Feature.EMBEDDED_FILE}` (honest catalog metadata; the attachment is the padding).
+
 ```python
-"""Byte-size-targeted clean PDFs. GH Pages caps at 100MB per file; we cap at 50MB."""
+"""Byte-size-targeted clean PDFs. GH Pages caps at 100MB per file; we cap at 50MB.
+
+Each fixture is a small reportlab-generated base PDF with a binary blob
+attached via pikepdf's embedded-file mechanism. Memory peak per fixture is
+target_bytes (one secrets.token_bytes() allocation), not 5x via Python
+tuples. Because the padding is an embedded file, the fixture's facets
+include features={Feature.EMBEDDED_FILE}.
+"""
 
 from __future__ import annotations
 
 import hashlib
 import io
+import secrets
 from pathlib import Path
 
-from PIL import Image
+import pikepdf
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
 
 from generate.facets import (
     FixtureRecord, Health, Access, DocumentShape, Provenance,
-    PaperSize, Spec,
+    PaperSize, Spec, Feature,
 )
 
 TARGETS_MB = [1, 10, 25, 50]
 
 
-def _filler_image_bytes(target_bytes: int) -> bytes:
-    """Generate a JPEG of approximately target_bytes by tuning dimensions."""
-    # Empirical: ~1.5 bytes per pixel for high-quality JPEG random-noise photos.
-    px_total = max(int(target_bytes / 1.5), 1024)
-    side = int(px_total ** 0.5)
-    import random
-    img = Image.new("RGB", (side, side))
-    img.putdata([(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                 for _ in range(side * side)])
+def _base_pdf(id_: str, mb: int) -> bytes:
+    """Generate a small clean Letter PDF used as the base for size padding."""
     buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=95)
-    return buf.getvalue()
-
-
-def _write_padded_pdf(path: Path, target_bytes: int, id_: str) -> None:
-    c = canvas.Canvas(str(path), pageCompression=0)  # don't recompress the image
+    c = canvas.Canvas(buf, pageCompression=1)
     c.setTitle(f"pdfbin.net fixture: {id_}")
     c.setAuthor("pdfbin.net")
     c.setSubject("CC0 test fixture (size-targeted)")
     c.setFont("Helvetica", 18)
     c.drawString(72, LETTER[1] - 100, f"pdfbin.net fixture - {id_}")
-    c.drawString(72, LETTER[1] - 130, "Size-targeted padding via embedded JPEG.")
-
-    image_data = _filler_image_bytes(target_bytes - 50_000)  # 50KB chrome overhead estimate
-    image = canvas.ImageReader(io.BytesIO(image_data))
-    c.drawImage(image, 72, 72, width=LETTER[0] - 144, height=400, preserveAspectRatio=True)
+    c.setFont("Helvetica", 12)
+    c.drawString(72, LETTER[1] - 130, f"Size-targeted to approximately {mb} MB.")
+    c.drawString(72, LETTER[1] - 150, "Padding via attached binary file (random bytes).")
+    c.drawString(72, LETTER[1] - 170, "CC0-1.0. See /catalog.json.")
     c.showPage()
     c.save()
+    return buf.getvalue()
 
 
-def _hash(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def _pad_with_attachment(base_pdf_bytes: bytes, target_bytes: int) -> bytes:
+    """Attach a random-bytes blob sized to make the saved PDF approximate target_bytes."""
+    pdf = pikepdf.open(io.BytesIO(base_pdf_bytes))
+    # Estimate chrome overhead so the saved file lands close to target.
+    chrome_estimate = len(base_pdf_bytes) + 2048  # base PDF + AttachedFileSpec overhead
+    payload_size = max(target_bytes - chrome_estimate, 0)
+    blob = secrets.token_bytes(payload_size)
+    filespec = pikepdf.AttachedFileSpec(pdf, blob, mime_type="application/octet-stream")
+    pdf.attachments["padding.bin"] = filespec
+    out = io.BytesIO()
+    pdf.save(out)
+    return out.getvalue()
+
+
+def _hash(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
 
 
 def build_all(static_dir: Path) -> list[FixtureRecord]:
     records: list[FixtureRecord] = []
     for mb in TARGETS_MB:
         id_ = f"clean-{mb}mb"
+        base = _base_pdf(id_, mb)
+        data = _pad_with_attachment(base, mb * 1_000_000)
         path = static_dir / f"{id_}.pdf"
-        _write_padded_pdf(path, mb * 1_000_000, id_)
+        path.write_bytes(data)
         records.append(FixtureRecord(
             id=id_,
-            size_bytes=path.stat().st_size,
-            sha256=_hash(path),
+            size_bytes=len(data),
+            sha256=_hash(data),
             page_count=1,
-            description=f"Clean US Letter PDF padded to approximately {mb} MB via an embedded JPEG.",
+            description=f"Clean US Letter PDF padded to approximately {mb} MB via an attached random-bytes file (embedded-file feature).",
             health=Health.VALID,
             access=Access.OPEN,
             document_shape=DocumentShape.BLANK,
@@ -1208,7 +1222,7 @@ def build_all(static_dir: Path) -> list[FixtureRecord]:
             paper_size=PaperSize.US_LETTER,
             orientation="portrait",
             spec=Spec.PDF_1_7,
-            features=set(),
+            features={Feature.EMBEDDED_FILE},
             source_script=f"generate/builders/size.py:clean_{mb}mb",
         ))
     return records
