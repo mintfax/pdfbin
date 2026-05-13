@@ -20,8 +20,5 @@ Thumbs.db
 .idea/
 *.swp
 
-# Per-project Claude memory / session state (not for the repo)
+# Per-project Claude memory / session state
 .claude/
-
-# Brainstorming / planning docs - kept locally, not for the repo
-docs/superpowers/

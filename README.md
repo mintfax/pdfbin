@@ -65,8 +65,6 @@ Single-branch flow:
 - `main` is the default branch. Every push triggers both the `build`
   workflow (pytest, catalog-shape check, Hugo smoke build) and the
   `deploy` workflow (Hugo build + publish to GitHub Pages).
-- Caddy at `https://pdfbin.example.dev` serves `./public/` locally
-  for dev previews. Rebuild with `hugo --minify` and the change is live.
 
 Note on regeneration semantics:
 

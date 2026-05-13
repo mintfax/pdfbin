@@ -6,9 +6,8 @@ See `docs/superpowers/specs/2026-05-12-pdfbin-net-design.md` for the design.
 ## Working rules
 
 - Commit and push after every change.
-- Do not run `hugo server`. A one-shot `hugo --minify` is fine and is how you
-  refresh the preview - Caddy serves `public/` publicly at
-  https://pdfbin.example.dev. Rebuild after each push to verify.
+- Do not run `hugo server`. A one-shot `hugo --minify` rebuilds the preview
+  in `public/`. Rebuild after each push to verify.
 - The Python pipeline regenerates everything. Run `python -m generate.pipeline`
   from the repo root. Output lives in `static/` (PDFs + catalog.json + llms.txt
   + openapi.json) and in `content/preview/` (one markdown stub per PDF, used
@@ -22,7 +21,3 @@ See `docs/superpowers/specs/2026-05-12-pdfbin-net-design.md` for the design.
   `"status": "deprecated"` in catalog.json with a `superseded_by` pointer.
 - Facet vocabularies live in `generate/facets.py` and are the single source
   of truth. Adding a value bumps the catalog schema_version.
-
-## Dev URL
-
-This project's `public/` folder is accessible at https://pdfbin.example.dev (Caddy wildcard route, rebuilt with `hugo --minify`).
