@@ -3,6 +3,8 @@
 Source repository for [pdfbin.net](https://pdfbin.net) - a free CC0 library of
 test PDFs at stable URLs you can drop into your test suite.
 
+Built by [mintfax](https://mintfax.com), a developer-first fax API.
+
 Each PDF does one specific thing: it's clean, or corrupt in a known way, or
 encrypted with a documented password, or oversized, or PDF/A compliant, or a
 scan, or a form, or shaped like a real-world document (fax cover, invoice,
