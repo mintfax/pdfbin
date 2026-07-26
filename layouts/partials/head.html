@@ -23,3 +23,18 @@
 <link rel="apple-touch-icon" sizes="180x180" href="{{ "apple-touch-icon.png" | relURL }}">
 {{ $cssHash := readFile "static/css/overrides.css" | crypto.MD5 }}
 <link rel="stylesheet" href="{{ "css/overrides.css" | relURL }}?v={{ substr $cssHash 0 8 }}">
+
+<!-- OpenPanel -->
+{{ if hugo.IsProduction }}
+<script>
+  window.op=window.op||function(){var n=[];return new Proxy(function(){arguments.length&&n.push([].slice.call(arguments))},{get:function(t,r){return"q"===r?n:function(){n.push([r].concat([].slice.call(arguments)))}},has:function(t,r){return"q"===r}})}();
+  window.op('init', {
+    apiUrl: 'https://op.pdfbin.net/api',
+    clientId: '1735e249-fcab-4474-b59d-5ed16a5bd93c',
+    trackScreenViews: true,
+    trackOutgoingLinks: true,
+    trackAttributes: true,
+  });
+</script>
+<script src="https://op.pdfbin.net/op1.js" defer async></script>
+{{ end }}
